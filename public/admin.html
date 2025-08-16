@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - RestauranteWeb</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #3b82f6;
+            --white: #ffffff;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--gray-50);
+            color: var(--gray-900);
+        }
+
+        /* Header */
+        .header {
+            background-color: var(--white);
+            border-bottom: 1px solid var(--gray-200);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--gray-900);
+            font-size: 0.9rem;
+        }
+
+        .user-role {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+            text-transform: capitalize;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: var(--gray-500);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            color: var(--error);
+            background-color: var(--gray-100);
+        }
+
+        /* Main Content */
+        .main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--gray-600);
+            font-size: 1.1rem;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--gray-200);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+        }
+
+        .stat-card:hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stat-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--gray-600);
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 1.25rem;
+        }
+
+        .stat-icon.primary { background-color: var(--primary); }
+        .stat-icon.success { background-color: var(--success); }
+        .stat-icon.warning { background-color: var(--warning); }
+        .stat-icon.error { background-color: var(--error); }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-change {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--gray-600);
+        }
+
+        .stat-change.positive { color: var(--success); }
+        .stat-change.negative { color: var(--error); }
+
+        /* Action Buttons */
+        .actions-section {
+            background: var(--white);
+            border-radius: 0.75rem;
+            border: 1px solid var(--gray-200);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .actions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .actions-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .action-card {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .action-card:hover {
+            background: var(--white);
+            border-color: var(--primary);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .action-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 0.5rem;
+            background: var(--primary);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.75rem;
+            font-size: 1.5rem;
+        }
+
+        .action-icon.images {
+            background: #8b5cf6; /* Purple */
+        }
+
+        .action-icon.restaurant {
+            background: #f59e0b; /* Orange */
+        }
+
+        .action-icon.stats {
+            background: #10b981; /* Green */
+        }
+
+        .action-icon.profile {
+            background: #6366f1; /* Indigo */
+        }
+
+        .action-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .action-description {
+            font-size: 0.8rem;
+            color: var(--gray-600);
+        }
+
+        /* System Status */
+        .status-section {
+            background: var(--white);
+            border-radius: 0.75rem;
+            border: 1px solid var(--gray-200);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .status-indicator.success { background-color: var(--success); }
+        .status-indicator.warning { background-color: var(--warning); }
+        .status-indicator.error { background-color: var(--error); }
+
+        .status-text {
+            flex: 1;
+        }
+
+        .status-value {
+            font-weight: 500;
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--gray-600);
+            border: 1px solid var(--gray-300);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--gray-50);
+            border-color: var(--gray-400);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: var(--white);
+        }
+
+        .btn-success:hover {
+            background-color: #059669;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--gray-500);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--gray-200);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav {
+                padding: 0 1rem;
+            }
+            
+            .main {
+                padding: 1rem;
+            }
+            
+            .user-section {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .user-info {
+                text-align: center;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .actions-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Notificaciones */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            max-width: 400px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border-left: 4px solid var(--primary);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            gap: 12px;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success { border-left-color: var(--success); }
+        .notification.error { border-left-color: var(--error); }
+        .notification.warning { border-left-color: var(--warning); }
+        
+        .notification i {
+            font-size: 18px;
+            color: var(--primary);
+        }
+        
+        .notification.success i { color: var(--success); }
+        .notification.error i { color: var(--error); }
+        .notification.warning i { color: var(--warning); }
+        
+        .notification-message {
+            flex: 1;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .notification-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            color: var(--gray-400);
+        }
+        
+        .notification-close:hover {
+            background: var(--gray-100);
+            color: var(--gray-600);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <a href="/admin.html" class="logo">
+                <i class="fas fa-utensils"></i>
+                RestauranteWeb Admin
+            </a>
+            
+            <div class="user-section">
+                <div class="user-info">
+                    <div class="user-name" id="user-name">Cargando...</div>
+                    <div class="user-role" id="user-role">admin</div>
+                </div>
+                <div class="user-avatar" id="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <button class="logout-btn" id="logout-btn" title="Cerrar sesión">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Panel de Administración</h1>
+            <p class="page-subtitle">Bienvenido, gestiona tus restaurantes desde aquí</p>
+        </div>
+
+        <!-- Dashboard Stats -->
+        <div class="dashboard-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">Mis Restaurantes</div>
+                    <div class="stat-icon primary">
+                        <i class="fas fa-store"></i>
+                    </div>
+                </div>
+                <div class="stat-value" id="total-restaurants">0</div>
+                <div class="stat-change">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Total de establecimientos</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">Imágenes Subidas</div>
+                    <div class="stat-icon warning">
+                        <i class="fas fa-images"></i>
+                    </div>
+                </div>
+                <div class="stat-value" id="total-images">0</div>
+                <div class="stat-change">
+                    <i class="fas fa-camera"></i>
+                    <span>Fotos de mis restaurantes</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">Estado del Sistema</div>
+                    <div class="stat-icon success">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+                <div class="stat-value" style="font-size: 1.5rem;">Activo</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>Funcionando correctamente</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">Último Acceso</div>
+                    <div class="stat-icon primary">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                </div>
+                <div class="stat-value" style="font-size: 1.2rem;" id="last-access">Ahora</div>
+                <div class="stat-change">
+                    <i class="fas fa-history"></i>
+                    <span>Sesión activa</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions Section -->
+        <div class="actions-section">
+            <div class="actions-header">
+                <h2 class="actions-title">Acciones Rápidas</h2>
+                <button class="btn btn-primary" onclick="refreshData()">
+                    <i class="fas fa-sync-alt"></i>
+                    Actualizar
+                </button>
+            </div>
+            
+            <div class="actions-grid">
+                <!-- Gestión de Imágenes - NUEVA -->
+                <a href="/manage-images.html" class="action-card">
+                    <div class="action-icon images">
+                        <i class="fas fa-images"></i>
+                    </div>
+                    <div class="action-title">Gestionar Imágenes</div>
+                    <div class="action-description">Subir, editar y organizar las fotos de tu restaurante</div>
+                </a>
+
+                <!-- Gestionar Restaurante -->
+                <a href="/manage-restaurant.html" class="action-card">
+                    <div class="action-icon restaurant">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                    <div class="action-title">Gestionar Mi Restaurante</div>
+                    <div class="action-description">Editar información, menú y horarios</div>
+                </a>
+
+                <!-- Estadísticas -->
+                <a href="/estadisticas.html" class="action-card">
+                    <div class="action-icon stats">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div class="action-title">Estadísticas</div>
+                    <div class="action-description">Ver métricas y reportes de tu restaurante</div>
+                </a>
+
+                <!-- Mi Perfil -->
+                <a href="/mi-perfil.html" class="action-card">
+                    <div class="action-icon profile">
+                        <i class="fas fa-user-cog"></i>
+                    </div>
+                    <div class="action-title">Mi Perfil</div>
+                    <div class="action-description">Configurar mi cuenta y datos personales</div>
+                </a>
+
+                <!-- Ver Sitio Público -->
+                <a href="/" class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <div class="action-title">Ver Sitio Público</div>
+                    <div class="action-description">Ir a la página principal</div>
+                </a>
+
+                <!-- Probar API -->
+                <div class="action-card" onclick="testAPI()">
+                    <div class="action-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="action-title">Probar API</div>
+                    <div class="action-description">Verificar conexión del sistema</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Status -->
+        <div class="status-section">
+            <h3 style="margin-bottom: 1rem; color: var(--gray-900);">Estado del Sistema</h3>
+            
+            <div class="status-item">
+                <div class="status-indicator success"></div>
+                <div class="status-text">Servidor Web</div>
+                <div class="status-value">Funcionando</div>
+            </div>
+            
+            <div class="status-item">
+                <div class="status-indicator" id="db-indicator"></div>
+                <div class="status-text">Base de Datos</div>
+                <div class="status-value" id="db-status">Verificando...</div>
+            </div>
+            
+            <div class="status-item">
+                <div class="status-indicator success"></div>
+                <div class="status-text">Autenticación</div>
+                <div class="status-value">Activa</div>
+            </div>
+            
+            <div class="status-item">
+                <div class="status-indicator success"></div>
+                <div class="status-text">Frontend</div>
+                <div class="status-value">Cargado</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script>
+        // Variables globales
+        const API_BASE = window.location.origin + '/api';
+        let currentUser = null;
+
+        // Funciones de notificación
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            const icon = type === 'success' ? 'fa-check-circle' : 
+                        type === 'error' ? 'fa-exclamation-circle' : 
+                        type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle';
+            
+            notification.innerHTML = `
+                <i class="fas ${icon}"></i>
+                <span class="notification-message">${message}</span>
+                <button class="notification-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.classList.add('show'), 100);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 5000);
+            
+            notification.querySelector('.notification-close').onclick = () => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            };
+        }
+
+        // Verificar autenticación
+        async function checkAuth() {
+            const token = localStorage.getItem('authToken');
+            
+            if (!token) {
+                showNotification('No has iniciado sesión', 'error');
+                setTimeout(() => {
+                    window.location.href = '/login.html';
+                }, 2000);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    currentUser = data.data.admin;
+                    updateUserInterface();
+                    showNotification(`¡Bienvenido ${currentUser.nombre}!`, 'success');
+                } else {
+                    throw new Error('Token inválido');
+                }
+            } catch (error) {
+                console.error('Error verificando auth:', error);
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('currentUser');
+                showNotification('Sesión expirada, redirigiendo...', 'warning');
+                setTimeout(() => {
+                    window.location.href = '/login.html';
+                }, 2000);
+            }
+        }
+
+        // Verificar restaurante y cargar estadísticas
+        async function checkRestaurant() {
+            const token = localStorage.getItem('authToken');
+            if (!token) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/restaurants/my-restaurant`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    const totalRestaurants = document.getElementById('total-restaurants');
+                    if (totalRestaurants) {
+                        totalRestaurants.textContent = '1';
+                    }
+                    
+                    // Cargar estadísticas de imágenes
+                    loadImageStats();
+                } else {
+                    const totalRestaurants = document.getElementById('total-restaurants');
+                    if (totalRestaurants) {
+                        totalRestaurants.textContent = '0';
+                    }
+                }
+            } catch (error) {
+                console.error('Error verificando restaurante:', error);
+            }
+        }
+
+        // Cargar estadísticas de imágenes
+        async function loadImageStats() {
+            const token = localStorage.getItem('authToken');
+            if (!token) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/restaurants/images`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const totalImages = document.getElementById('total-images');
+                    if (totalImages && data.data) {
+                        totalImages.textContent = data.data.length || 0;
+                    }
+                } else {
+                    const totalImages = document.getElementById('total-images');
+                    if (totalImages) {
+                        totalImages.textContent = '0';
+                    }
+                }
+            } catch (error) {
+                console.error('Error cargando estadísticas de imágenes:', error);
+            }
+        }
+
+        // Actualizar interfaz de usuario
+        function updateUserInterface() {
+            if (!currentUser) return;
+
+            const userName = document.getElementById('user-name');
+            const userRole = document.getElementById('user-role');
+            const userAvatar = document.getElementById('user-avatar');
+            const lastAccess = document.getElementById('last-access');
+
+            if (userName) {
+                userName.textContent = `${currentUser.nombre} ${currentUser.apellido}`;
+            }
+            
+            if (userRole) {
+                userRole.textContent = currentUser.rol;
+            }
+            
+            if (userAvatar) {
+                const initials = (currentUser.nombre?.charAt(0) || '') + (currentUser.apellido?.charAt(0) || '');
+                userAvatar.textContent = initials.toUpperCase();
+            }
+
+            if (lastAccess) {
+                const now = new Date();
+                lastAccess.textContent = now.toLocaleTimeString('es-ES', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+            }
+        }
+
+        // Probar API
+        async function testAPI() {
+            const dbIndicator = document.getElementById('db-indicator');
+            const dbStatus = document.getElementById('db-status');
+
+            try {
+                const response = await fetch('/test');
+                const data = await response.json();
+
+                if (data.success) {
+                    // Actualizar estado de base de datos
+                    if (data.database.connected) {
+                        dbIndicator.className = 'status-indicator success';
+                        dbStatus.textContent = 'Conectada';
+                    } else {
+                        dbIndicator.className = 'status-indicator warning';
+                        dbStatus.textContent = 'Desconectada';
+                    }
+
+                    showNotification('Sistema funcionando correctamente', 'success');
+                } else {
+                    throw new Error('API no disponible');
+                }
+            } catch (error) {
+                dbIndicator.className = 'status-indicator error';
+                dbStatus.textContent = 'Error de conexión';
+                showNotification('Error de conexión con el servidor', 'error');
+            }
+        }
+
+        // Refrescar datos
+        async function refreshData() {
+            showNotification('Actualizando datos...', 'info');
+            await testAPI();
+            await checkRestaurant();
+            showNotification('Datos actualizados correctamente', 'success');
+        }
+
+        // Logout
+        function logout() {
+            const confirmed = confirm('¿Estás seguro de que quieres cerrar sesión?');
+            
+            if (confirmed) {
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('currentUser');
+                showNotification('Sesión cerrada correctamente', 'info');
+                
+                setTimeout(() => {
+                    window.location.href = '/login.html';
+                }, 1000);
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar autenticación al cargar
+            checkAuth();
+            
+            // Verificar restaurante
+            setTimeout(() => {
+                checkRestaurant();
+            }, 500);
+            
+            // Probar API automáticamente
+            setTimeout(() => {
+                testAPI();
+            }, 1000);
+
+            // Logout button
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', logout);
+            }
+
+            console.log('Panel de administración cargado correctamente');
+        });
+
+        // Verificar autenticación periódicamente
+        setInterval(() => {
+            if (!localStorage.getItem('authToken')) {
+                window.location.href = '/login.html';
+            }
+        }, 30000); // Cada 30 segundos
+    </script>
+</body>
+</html>

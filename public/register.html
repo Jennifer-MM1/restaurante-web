@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Cuenta - RestauranteWeb Admin</title>
+    <meta name="description" content="Crea tu cuenta de administrador para gestionar restaurantes">
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="auth-body">
+    <!-- Header simple -->
+    <header class="auth-header">
+        <nav class="nav">
+            <div class="container">
+                <div class="nav-brand">
+                    <a href="/" class="logo">
+                        <i class="fas fa-utensils"></i>
+                        RestauranteWeb
+                    </a>
+                </div>
+                <div class="nav-actions">
+                    <a href="/" class="btn btn-outline">
+                        <i class="fas fa-home"></i>
+                        Volver al inicio
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="auth-main">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header-content">
+                    <div class="auth-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <h1 class="auth-title">Crear Cuenta</h1>
+                    <p class="auth-subtitle">Únete como administrador de restaurantes</p>
+                </div>
+
+                <!-- Formulario de Registro -->
+                <form id="register-form" class="auth-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nombre" class="form-label">
+                                <i class="fas fa-user"></i>
+                                Nombre *
+                            </label>
+                            <input 
+                                type="text" 
+                                id="nombre" 
+                                name="nombre" 
+                                class="form-input"
+                                placeholder="Tu nombre"
+                                required
+                                autocomplete="given-name"
+                            >
+                            <div class="form-error" id="nombre-error"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="apellido" class="form-label">
+                                <i class="fas fa-user"></i>
+                                Apellido *
+                            </label>
+                            <input 
+                                type="text" 
+                                id="apellido" 
+                                name="apellido" 
+                                class="form-input"
+                                placeholder="Tu apellido"
+                                required
+                                autocomplete="family-name"
+                            >
+                            <div class="form-error" id="apellido-error"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email" class="form-label">
+                            <i class="fas fa-envelope"></i>
+                            Email *
+                        </label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            class="form-input"
+                            placeholder="tu@email.com"
+                            required
+                            autocomplete="email"
+                        >
+                        <div class="form-error" id="email-error"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telefono" class="form-label">
+                            <i class="fas fa-phone"></i>
+                            Teléfono *
+                        </label>
+                        <input 
+                            type="tel" 
+                            id="telefono" 
+                            name="telefono" 
+                            class="form-input"
+                            placeholder="(444) 123-4567"
+                            required
+                            autocomplete="tel"
+                        >
+                        <div class="form-error" id="telefono-error"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password" class="form-label">
+                            <i class="fas fa-lock"></i>
+                            Contraseña *
+                        </label>
+                        <div class="password-input-group">
+                            <input 
+                                type="password" 
+                                id="password" 
+                                name="password" 
+                                class="form-input"
+                                placeholder="Mínimo 6 caracteres"
+                                required
+                                autocomplete="new-password"
+                            >
+                            <button 
+                                type="button" 
+                                class="password-toggle" 
+                                id="password-toggle"
+                                title="Mostrar/ocultar contraseña"
+                            >
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="form-error" id="password-error"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword" class="form-label">
+                            <i class="fas fa-lock"></i>
+                            Confirmar Contraseña *
+                        </label>
+                        <div class="password-input-group">
+                            <input 
+                                type="password" 
+                                id="confirmPassword" 
+                                name="confirmPassword" 
+                                class="form-input"
+                                placeholder="Repite tu contraseña"
+                                required
+                                autocomplete="new-password"
+                            >
+                            <button 
+                                type="button" 
+                                class="password-toggle" 
+                                id="confirm-password-toggle"
+                                title="Mostrar/ocultar contraseña"
+                            >
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="form-error" id="confirmPassword-error"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="terms" name="terms" required>
+                            <span class="checkbox-custom"></span>
+                            Acepto los <a href="#" class="auth-link">términos y condiciones</a> y la 
+                            <a href="#" class="auth-link">política de privacidad</a>
+                        </label>
+                        <div class="form-error" id="terms-error"></div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full" id="register-btn">
+                        <span class="btn-text">
+                            <i class="fas fa-user-plus"></i>
+                            Crear Cuenta
+                        </span>
+                        <div class="btn-spinner" style="display: none;">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                    </button>
+                </form>
+
+                <!-- Enlaces adicionales -->
+                <div class="auth-links">
+                    <p>¿Ya tienes cuenta? 
+                        <a href="/login.html" class="auth-link">Inicia sesión aquí</a>
+                    </p>
+                </div>
+
+                <!-- Información de seguridad -->
+                <div class="auth-info">
+                    <div class="info-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Información protegida con encriptación</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Verificación manual de administradores</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-envelope-open-text"></i>
+                        <span>Confirmación por email</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel lateral con beneficios -->
+            <div class="auth-side">
+                <div class="side-content">
+                    <h2 class="side-title">Únete como Admin</h2>
+                    <p class="side-text">
+                        Conviértete en administrador y gestiona tus restaurantes, bares o 
+                        cafeterías con nuestras herramientas profesionales.
+                    </p>
+                    
+                    <div class="side-features">
+                        <div class="feature">
+                            <div class="feature-icon">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                            <div class="feature-content">
+                                <h3>Control Total</h3>
+                                <p>Gestiona toda la información de tus establecimientos desde un panel centralizado</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature">
+                            <div class="feature-icon">
+                                <i class="fas fa-rocket"></i>
+                            </div>
+                            <div class="feature-content">
+                                <h3>Fácil de Usar</h3>
+                                <p>Interfaz intuitiva diseñada para que puedas empezar inmediatamente</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature">
+                            <div class="feature-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="feature-content">
+                                <h3>Mayor Visibilidad</h3>
+                                <p>Conecta con más clientes y haz crecer tu negocio</p>
+                            </div>
+                        </div>
+
+                        <div class="feature">
+                            <div class="feature-icon">
+                                <i class="fas fa-headset"></i>
+                            </div>
+                            <div class="feature-content">
+                                <h3>Soporte 24/7</h3>
+                                <p>Equipo de soporte dedicado para ayudarte cuando lo necesites</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Testimonial -->
+                    <div class="testimonial">
+                        <div class="testimonial-content">
+                            <p>"Desde que uso RestauranteWeb, he triplicado mi visibilidad online. La plataforma es súper fácil de usar."</p>
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="author-info">
+                                <div class="author-name">María González</div>
+                                <div class="author-title">Propietaria de "La Cocina de María"</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer simple -->
+    <footer class="auth-footer">
+        <div class="container">
+            <p>&copy; 2025 RestauranteWeb. Todos los derechos reservados.</p>
+            <div class="footer-links">
+                <a href="#">Términos de uso</a>
+                <a href="#">Política de privacidad</a>
+                <a href="#">Soporte</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/js/utils.js"></script>
+    <script src="/js/auth.js"></script>
+
+    <script>
+        // Script específico para registro
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle de contraseña para confirmación
+            const confirmToggle = document.getElementById('confirm-password-toggle');
+            if (confirmToggle) {
+                confirmToggle.addEventListener('click', function() {
+                    const passwordInput = document.getElementById('confirmPassword');
+                    const toggleIcon = this.querySelector('i');
+                    
+                    if (passwordInput && toggleIcon) {
+                        const isPassword = passwordInput.type === 'password';
+                        
+                        passwordInput.type = isPassword ? 'text' : 'password';
+                        toggleIcon.className = isPassword ? 'fas fa-eye-slash' : 'fas fa-eye';
+                    }
+                });
+            }
+
+            // Validación en tiempo real de confirmación de contraseña
+            const passwordInput = document.getElementById('password');
+            const confirmInput = document.getElementById('confirmPassword');
+            
+            if (passwordInput && confirmInput) {
+                function validatePasswordMatch() {
+                    const password = passwordInput.value;
+                    const confirm = confirmInput.value;
+                    
+                    if (confirm && password !== confirm) {
+                        confirmInput.classList.add('error');
+                        const errorEl = document.getElementById('confirmPassword-error');
+                        if (errorEl) {
+                            errorEl.textContent = 'Las contraseñas no coinciden';
+                            errorEl.classList.add('show');
+                        }
+                    } else {
+                        confirmInput.classList.remove('error');
+                        const errorEl = document.getElementById('confirmPassword-error');
+                        if (errorEl) {
+                            errorEl.classList.remove('show');
+                            errorEl.textContent = '';
+                        }
+                    }
+                }
+                
+                confirmInput.addEventListener('input', validatePasswordMatch);
+                passwordInput.addEventListener('input', validatePasswordMatch);
+            }
+        });
+    </script>
+</body>
+</html>
