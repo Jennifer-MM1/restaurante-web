@@ -931,7 +931,441 @@
                 gap: var(--spacing-sm);
             }
         }
+/* ===== CORRECCIONES PARA INDEX.HTML ===== */
 
+/* Agregar al final de tu sección <style> en index.html */
+
+/* Evitar overflow horizontal */
+html, body {
+    width: 100%;
+    overflow-x: hidden; /* Evita scroll horizontal */
+    margin: 0;
+    padding: 0;
+}
+
+/* ===== ESTILOS PARA EL LOGO CON IMAGEN ===== */
+.logo-image {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+    margin-right: var(--spacing-xs);
+    transition: var(--transition);
+    flex-shrink: 0;
+    background: var(--white);
+    padding: 2px;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Hover effect sutil */
+.nav-brand:hover .logo-image {
+    transform: scale(1.05);
+}
+
+/* ===== ESTILOS PARA MENÚ MÓVIL ===== */
+
+/* Header con z-index alto */
+.header {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--gray-200);
+    z-index: 1001 !important;
+    height: 70px;
+}
+
+.nav {
+    width: 100%;
+    height: 100%;
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg);
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+}
+
+/* LOGO */
+.nav-brand .logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    margin: 0;
+}
+
+/* MENÚ DESKTOP */
+.nav-menu {
+    display: flex;
+    gap: var(--spacing-xl);
+    align-items: center;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: var(--gray-700);
+    font-weight: 500;
+    transition: var(--transition);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: var(--primary);
+    background: rgba(37, 99, 235, 0.1);
+}
+
+/* ACCIONES */
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.9rem;
+}
+
+.btn-admin {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.btn-admin:hover {
+    background: var(--primary-dark);
+}
+
+/* BOTÓN HAMBURGUESA - OCULTO EN DESKTOP */
+.nav-toggle {
+    display: none !important;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--gray-700);
+    cursor: pointer;
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-md);
+    transition: var(--transition);
+    z-index: 1002;
+    min-width: 44px;
+    min-height: 44px;
+    position: relative;
+    user-select: none;
+}
+
+.nav-toggle:hover {
+    background-color: var(--gray-100);
+    color: var(--primary);
+}
+
+.nav-toggle i {
+    pointer-events: none !important;
+    transition: transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-toggle[aria-expanded="true"] i {
+    transform: rotate(180deg);
+}
+
+/* Overlay */
+.nav-overlay {
+    position: fixed;
+    top: 70px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 999 !important;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.nav-overlay.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+/* ===== RESPONSIVE PARA MENÚ MÓVIL ===== */
+
+/* Tablet y móvil */
+@media (max-width: 768px) {
+    /* MOSTRAR BOTÓN HAMBURGUESA */
+    .nav-toggle {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* OCULTAR MENÚ DESKTOP */
+    .nav-menu {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background-color: var(--white);
+        border-top: 1px solid var(--gray-200);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        flex-direction: column;
+        padding: var(--spacing-lg);
+        gap: var(--spacing-lg);
+        transform: translateY(-100%);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1000 !important;
+        max-height: calc(100vh - 70px);
+        overflow-y: auto;
+    }
+    
+    /* MENÚ ACTIVO */
+    .nav-menu.active {
+        transform: translateY(0) !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+    
+    /* ENLACES EN MÓVIL */
+    .nav-link {
+        width: 100%;
+        text-align: center;
+        padding: var(--spacing-md);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-md);
+        background: var(--gray-50);
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    
+    .nav-link:hover,
+    .nav-link.active {
+        background: var(--primary) !important;
+        color: var(--white) !important;
+        border-color: var(--primary);
+        transform: translateY(-1px);
+    }
+    
+    /* BOTÓN ADMIN EN MÓVIL */
+    .btn-admin {
+        padding: var(--spacing-sm) var(--spacing-md);
+        font-size: 0.8rem;
+    }
+    
+    .btn-admin span {
+        display: none;
+    }
+    
+    /* Asegurar que el hero no quede tapado */
+    .hero {
+        padding-top: calc(70px + var(--spacing-2xl));
+    }
+}
+
+/* RESPONSIVE PARA LA IMAGEN DEL LOGO */
+@media (max-width: 768px) {
+    .logo-image {
+        width: 35px;
+        height: 35px;
+        margin-right: var(--spacing-xs);
+    }
+    
+    .nav-brand .logo {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-container {
+        padding: 0 var(--spacing-sm);
+    }
+    
+    .logo-image {
+        width: 30px;
+        height: 30px;
+        margin-right: 4px;
+    }
+    
+    .nav-brand .logo {
+        font-size: 1.1rem;
+    }
+    
+    .btn-admin {
+        padding: var(--spacing-xs) var(--spacing-sm);
+        font-size: 0.75rem;
+    }
+    
+    .nav-menu {
+        padding: var(--spacing-md);
+        gap: var(--spacing-md);
+    }
+    
+    .nav-link {
+        padding: var(--spacing-sm);
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 360px) {
+    .logo-image {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .nav-brand .logo {
+        font-size: 1rem;
+    }
+    
+    .nav-toggle {
+        padding: var(--spacing-xs);
+        font-size: 1.3rem;
+    }
+    
+    .btn-admin span {
+        display: none;
+    }
+}
+
+/* Mejoras para dispositivos táctiles */
+@media (hover: none) and (pointer: coarse) {
+    .nav-toggle,
+    .btn-admin {
+        min-width: 44px;
+        min-height: 44px;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+    }
+    
+    .nav-link {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .nav-toggle:hover,
+    .nav-link:hover,
+    .btn-admin:hover {
+        transform: none;
+    }
+    
+    .nav-toggle:active {
+        transform: scale(0.95);
+    }
+}
+
+/* Cerrar menú automáticamente en landscape */
+@media (max-height: 500px) and (orientation: landscape) {
+    .nav-menu {
+        max-height: calc(100vh - 60px);
+        padding: var(--spacing-sm);
+        gap: var(--spacing-sm);
+    }
+    
+    .nav-link {
+        padding: var(--spacing-sm);
+        font-size: 0.8rem;
+    }
+}
+
+/* Corregir contenedores que pueden causar overflow */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg);
+    box-sizing: border-box;
+}
+
+.hero-container,
+.results-container,
+.footer-container {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Asegurar que los grids no causen overflow */
+.hero-stats,
+.jalpan-features,
+.city-stats,
+.results-grid {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Corregir search box en móvil */
+@media (max-width: 480px) {
+    .search-box {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        box-sizing: border-box;
+    }
+    
+    .search-input {
+        width: 100%;
+        min-width: 0;
+    }
+}
+
+/* Fallback si no carga la imagen del logo */
+.logo-image::after {
+    content: "🏛️";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+    display: none;
+}
+
+.logo-image[src=""],
+.logo-image:not([src]) {
+    background: var(--primary);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-image[src=""]::after,
+.logo-image:not([src])::after {
+    display: block;
+    position: static;
+    transform: none;
+}
+
+@media (min-width: 769px) {
+    .nav-overlay {
+        display: none !important;
+    }
+}
         
     </style>
 
