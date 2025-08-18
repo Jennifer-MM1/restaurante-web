@@ -498,29 +498,542 @@
                 font-size: 1.5rem;
             }
         }
+        /* ===== CSS CORREGIDO PARA MENÚ HAMBURGUESA ===== */
+
+/* Botón hamburguesa con z-index alto */
+.nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--gray-700);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+    min-width: 44px;
+    min-height: 44px;
+    z-index: 1002 !important; /* Asegurar que esté por encima de todo */
+    position: relative;
+    user-select: none; /* Evitar selección de texto */
+}
+
+.nav-toggle:hover {
+    background-color: var(--gray-100);
+    color: var(--primary);
+}
+
+.nav-toggle:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* Icono del toggle - evitar interferencias */
+.nav-toggle i {
+    pointer-events: none !important; /* CRÍTICO: evitar conflictos con el icono */
+    transition: transform 0.3s ease;
+    display: block;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Animación del icono */
+.nav-toggle[aria-expanded="true"] i {
+    transform: rotate(180deg);
+}
+
+/* Header con z-index apropiado */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--gray-200);
+    z-index: 1001 !important;
+    height: 70px;
+    width: 100%;
+}
+
+/* Overlay con z-index menor que el botón */
+.nav-overlay {
+    position: fixed;
+    top: 70px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 999 !important; /* Menor que el botón toggle */
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.nav-overlay.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+/* ===== PARA INDEX.HTML ===== */
+@media (max-width: 768px) {
+    .nav-toggle {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .nav-menu {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background-color: var(--white);
+        border-top: 1px solid var(--gray-200);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        flex-direction: column;
+        padding: var(--spacing-lg);
+        gap: var(--spacing-lg);
+        transform: translateY(-100%);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1000 !important; /* Entre overlay y botón */
+        max-height: calc(100vh - 70px);
+        overflow-y: auto;
+    }
+    
+    .nav-menu.active {
+        transform: translateY(0) !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+}
+
+/* ===== PARA MANAGE-RESTAURANT.HTML ===== */
+@media (max-width: 768px) {
+    .nav-links {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background-color: var(--white);
+        border-top: 1px solid var(--gray-200);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        flex-direction: column;
+        padding: 1rem;
+        gap: 1rem;
+        transform: translateY(-100%);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 1000 !important;
+        max-height: calc(100vh - 70px);
+        overflow-y: auto;
+    }
+    
+    .nav-links.active {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+/* ===== PARA ESTADISTICAS.HTML ===== */
+@media (max-width: 768px) {
+    .nav-actions {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background-color: var(--white);
+        border-top: 1px solid var(--gray-200);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        flex-direction: column;
+        padding: 1rem;
+        gap: 1rem;
+        transform: translateY(-100%);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 1000 !important;
+        max-height: calc(100vh - 70px);
+        overflow-y: auto;
+    }
+    
+    .nav-actions.active {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+/* Estilos generales para todos los menús móviles */
+.nav-menu.active,
+.nav-links.active,
+.nav-actions.active {
+    z-index: 1000 !important;
+}
+
+/* Asegurar que los enlaces/botones sean accesibles */
+.nav-link,
+.btn {
+    position: relative;
+    z-index: auto;
+    user-select: none;
+}
+
+/* Evitar doble tap en móvil */
+@media (hover: none) and (pointer: coarse) {
+    .nav-toggle {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+    }
+    
+    .nav-toggle:active {
+        transform: scale(0.95);
+    }
+}
+
+/* Debugging styles (usar solo para encontrar problemas) */
+/*
+.nav-toggle {
+    border: 2px solid red !important;
+}
+
+.nav-overlay {
+    border: 2px solid blue !important;
+}
+
+.nav-menu.active,
+.nav-links.active,
+.nav-actions.active {
+    border: 2px solid green !important;
+}
+*/
     </style>
 </head>
 <body>
     <!-- Header -->
-    <header class="header">
-        <nav class="nav">
-            <a href="/admin.html" class="logo">
-                <i class="fas fa-utensils"></i>
-                RestauranteWeb
+<!-- ===== HEADER MEJORADO CON NAVEGACIÓN MÓVIL ===== -->
+<header class="header">
+    <nav class="nav">
+        <a href="/admin.html" class="logo">
+            <i class="fas fa-utensils"></i>
+            RestauranteWeb
+        </a>
+        
+        <!-- Botón hamburguesa para móvil -->
+        <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <div class="nav-actions" id="nav-actions">
+            <button class="btn btn-primary" onclick="refreshStats()">
+                <i class="fas fa-sync-alt"></i>
+                <span>Actualizar</span>
+            </button>
+            <a href="/admin.html" class="btn btn-outline">
+                <i class="fas fa-arrow-left"></i>
+                <span>Volver al Panel</span>
             </a>
-            
-            <div class="nav-actions">
-                <button class="btn btn-primary" onclick="refreshStats()">
-                    <i class="fas fa-sync-alt"></i>
-                    Actualizar
-                </button>
-                <a href="/admin.html" class="btn btn-outline">
-                    <i class="fas fa-arrow-left"></i>
-                    Volver al Panel
-                </a>
-            </div>
-        </nav>
-    </header>
+        </div>
+    </nav>
+</header>
+
+<!-- ===== JAVASCRIPT ADICIONAL PARA NAVEGACIÓN MÓVIL ===== -->
+<script>
+// Agregar al final de tu script existente, antes del DOMContentLoaded
+
+function setupMobileNavigation() {
+    const navToggle = document.getElementById('nav-toggle');
+    const navActions = document.getElementById('nav-actions');
+    
+    if (!navToggle || !navActions) {
+        console.warn('Elementos de navegación móvil no encontrados');
+        return;
+    }
+    
+    console.log('✅ Navegación móvil inicializada');
+    
+    // Crear overlay
+    let overlay = document.querySelector('.nav-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'nav-overlay';
+        overlay.id = 'nav-overlay';
+        document.body.appendChild(overlay);
+    }
+    
+    let isMenuOpen = false;
+    
+    function openMenu() {
+        isMenuOpen = true;
+        navActions.classList.add('active');
+        overlay.classList.add('active');
+        updateIcon();
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeMenu() {
+        isMenuOpen = false;
+        navActions.classList.remove('active');
+        overlay.classList.remove('active');
+        updateIcon();
+        document.body.style.overflow = '';
+    }
+    
+    function updateIcon() {
+        const icon = navToggle.querySelector('i');
+        if (icon) {
+            if (isMenuOpen) {
+                icon.className = 'fas fa-times';
+                navToggle.setAttribute('aria-label', 'Cerrar menú');
+            } else {
+                icon.className = 'fas fa-bars';
+                navToggle.setAttribute('aria-label', 'Abrir menú');
+            }
+        }
+    }
+    
+    // Toggle del menú
+    navToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (isMenuOpen) {
+            closeMenu();
+        } else {
+            openMenu();
+        }
+    });
+    
+    // Cerrar menú al hacer click en un botón
+    navActions.addEventListener('click', function(e) {
+        if (e.target.classList.contains('btn') || e.target.closest('.btn')) {
+            setTimeout(closeMenu, 100);
+        }
+    });
+    
+    // Cerrar menú al hacer click en overlay
+    overlay.addEventListener('click', function() {
+        closeMenu();
+    });
+    
+    // Cerrar menú con tecla Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && isMenuOpen) {
+            closeMenu();
+        }
+    });
+    
+    // Cerrar menú al redimensionar ventana
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768 && isMenuOpen) {
+            closeMenu();
+        }
+    });
+}
+
+// Función mejorada para refrescar estadísticas (compatible con móvil)
+async function refreshStats() {
+    showNotification('Actualizando estadísticas...', 'info');
+    
+    // Cerrar menú móvil si está abierto
+    const navActions = document.getElementById('nav-actions');
+    if (navActions && navActions.classList.contains('active')) {
+        navActions.classList.remove('active');
+        document.querySelector('.nav-overlay')?.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    
+    // Destruir gráficos existentes
+    Object.values(charts).forEach(chart => {
+        if (chart) chart.destroy();
+    });
+    charts = {};
+
+    await loadRestaurantStats();
+    showNotification('Estadísticas actualizadas correctamente', 'success');
+}
+
+// Función para redimensionar gráficos en responsive
+function resizeCharts() {
+    Object.values(charts).forEach(chart => {
+        if (chart && typeof chart.resize === 'function') {
+            chart.resize();
+        }
+    });
+}
+
+// Modificar tu DOMContentLoaded existente para incluir navegación móvil:
+document.addEventListener('DOMContentLoaded', async function() {
+    // Agregar navegación móvil
+    setupMobileNavigation();
+    
+    // Tu código existente...
+    const isAuthenticated = await checkAuth();
+    if (isAuthenticated) {
+        await loadRestaurantStats();
+    }
+    
+    // Listener para redimensionar gráficos
+    window.addEventListener('resize', function() {
+        clearTimeout(window.resizeTimeout);
+        window.resizeTimeout = setTimeout(resizeCharts, 250);
+    });
+});
+
+// Función mejorada para crear gráficos que sea responsive
+function createPricesChart() {
+    const ctx = document.getElementById('pricesChart');
+    if (!ctx) return;
+
+    const menu = currentRestaurant.menu || [];
+    const categories = [];
+    const avgPrices = [];
+    const minPrices = [];
+    const maxPrices = [];
+
+    menu.forEach(category => {
+        const items = category.items || [];
+        const prices = items.map(item => item.precio).filter(price => typeof price === 'number');
+        
+        if (prices.length > 0) {
+            categories.push(category.categoria);
+            avgPrices.push(Math.round(prices.reduce((a, b) => a + b, 0) / prices.length));
+            minPrices.push(Math.min(...prices));
+            maxPrices.push(Math.max(...prices));
+        }
+    });
+
+    if (charts.pricesChart) {
+        charts.pricesChart.destroy();
+    }
+
+    charts.pricesChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: categories,
+            datasets: [{
+                label: 'Precio Promedio',
+                data: avgPrices,
+                backgroundColor: 'rgba(37, 99, 235, 0.8)',
+                borderColor: 'rgba(37, 99, 235, 1)',
+                borderWidth: 1
+            }, {
+                label: 'Precio Mínimo',
+                data: minPrices,
+                backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                borderColor: 'rgba(16, 185, 129, 1)',
+                borderWidth: 1
+            }, {
+                label: 'Precio Máximo',
+                data: maxPrices,
+                backgroundColor: 'rgba(245, 158, 11, 0.8)',
+                borderColor: 'rgba(245, 158, 11, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: window.innerWidth < 768 ? 'bottom' : 'top',
+                    labels: {
+                        boxWidth: window.innerWidth < 768 ? 10 : 40,
+                        font: {
+                            size: window.innerWidth < 768 ? 10 : 12
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        font: {
+                            size: window.innerWidth < 768 ? 10 : 12
+                        },
+                        maxRotation: window.innerWidth < 768 ? 45 : 0
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        font: {
+                            size: window.innerWidth < 768 ? 10 : 12
+                        },
+                        callback: function(value) {
+                            return '$' + value;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Función mejorada para crear gráfico de categorías
+function createCategoryChart() {
+    const ctx = document.getElementById('categoryChart');
+    if (!ctx) return;
+
+    const menu = currentRestaurant.menu || [];
+    const categories = [];
+    const itemCounts = [];
+    const colors = [
+        '#2563eb', '#16a34a', '#dc2626', '#ca8a04', '#9333ea',
+        '#c2410c', '#0891b2', '#be123c', '#4338ca', '#059669'
+    ];
+
+    menu.forEach((category, index) => {
+        const itemCount = category.items ? category.items.length : 0;
+        if (itemCount > 0) {
+            categories.push(category.categoria);
+            itemCounts.push(itemCount);
+        }
+    });
+
+    if (charts.categoryChart) {
+        charts.categoryChart.destroy();
+    }
+
+    charts.categoryChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: categories,
+            datasets: [{
+                data: itemCounts,
+                backgroundColor: colors.slice(0, categories.length),
+                borderWidth: 2,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: window.innerWidth < 768 ? 10 : 20,
+                        usePointStyle: true,
+                        font: {
+                            size: window.innerWidth < 768 ? 10 : 12
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+</script>
 
     <!-- Main Content -->
     <main class="main">

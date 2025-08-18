@@ -496,42 +496,625 @@
                 gap: 0.5rem;
             }
         }
+
+        /* ===== CORRECCIONES PARA MANAGE-RESTAURANT.HTML ===== */
+
+/* Agregar estas reglas CSS al final de tu sección <style> en manage-restaurant.html */
+
+/* Evitar overflow horizontal */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* Ya lo tienes, pero asegurar */
+}
+
+html, body {
+    width: 100%;
+    overflow-x: hidden; /* Evita scroll horizontal */
+    margin: 0;
+    padding: 0;
+}
+
+/* Asegurar que todos los contenedores respeten el ancho */
+.nav, .main {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.nav {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 70px;
+    width: 100%; /* Asegurar ancho completo */
+}
+
+.main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+    width: 100%; /* Asegurar ancho completo */
+}
+
+/* Corregir grids que pueden causar overflow */
+.restaurant-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 3rem;
+    width: 100%;
+    max-width: 100%;
+}
+
+.edit-sections {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Asegurar que las cards no sobresalgan */
+.info-card, .edit-card {
+    background: var(--white);
+    border-radius: 0.75rem;
+    border: 1px solid var(--gray-200);
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Corregir inputs que pueden expandirse */
+.form-input, .form-textarea {
+    width: 100%;
+    max-width: 100%;
+    padding: 0.75rem;
+    border: 2px solid var(--gray-200);
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+/* Corregir grid de horarios en móvil */
+.day-schedule {
+    display: grid;
+    grid-template-columns: 100px 80px 1fr 1fr;
+    gap: 1rem;
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Corregir items del menú */
+.menu-item {
+    display: grid;
+    grid-template-columns: 2fr 3fr 1fr auto;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    width: 100%;
+    max-width: 100%;
+}
+
+/* ===== RESPONSIVE MEJORADO ===== */
+
+/* Tablet */
+@media (max-width: 768px) {
+    .nav {
+        padding: 0 1rem;
+        flex-wrap: nowrap; /* Evitar que se rompa en líneas */
+    }
+    
+    .main {
+        padding: 1.5rem 1rem;
+    }
+    
+    .restaurant-info {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .edit-sections {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    /* Simplificar grid de horarios */
+    .day-schedule {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+        text-align: left;
+    }
+    
+    .day-checkbox {
+        justify-self: start;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Simplificar items del menú */
+    .menu-item {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    /* Navegación más compacta */
+    .nav-links {
+        gap: 0.5rem;
+    }
+    
+    .nav-link {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    .user-section {
+        gap: 0.5rem;
+    }
+    
+    .user-info {
+        display: none; /* Ocultar info del usuario en móvil */
+    }
+    
+    .user-avatar {
+        width: 35px;
+        height: 35px;
+        font-size: 0.8rem;
+    }
+}
+
+/* Móvil */
+@media (max-width: 480px) {
+    .nav {
+        padding: 0 0.5rem;
+        height: 60px;
+    }
+    
+    .main {
+        padding: 1rem 0.5rem;
+    }
+    
+    .page-title {
+        font-size: 1.5rem;
+    }
+    
+    .page-subtitle {
+        font-size: 1rem;
+    }
+    
+    .info-card, .edit-card {
+        padding: 1rem;
+    }
+    
+    .form-input, .form-textarea {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+    }
+    
+    /* Logo más pequeño */
+    .logo {
+        font-size: 1rem;
+    }
+    
+    /* Navegación muy compacta */
+    .nav-links {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .nav-link {
+        padding: 0.25rem;
+        font-size: 0.7rem;
+    }
+    
+    /* Schedule más simple */
+    .schedule-grid {
+        gap: 0.5rem;
+    }
+    
+    .day-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+    
+    .day-checkbox {
+        margin-bottom: 0.5rem;
+    }
+    
+    .day-checkbox input[type="checkbox"] {
+        transform: scale(1);
+    }
+    
+    /* Menu items más compactos */
+    .menu-category {
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .category-header {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: stretch;
+    }
+    
+    .btn-small {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.7rem;
+    }
+}
+
+/* Móvil muy pequeño */
+@media (max-width: 360px) {
+    .nav {
+        flex-direction: column;
+        height: auto;
+        padding: 0.5rem;
+        gap: 0.5rem;
+    }
+    
+    .nav-links {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .user-section {
+        order: 2;
+        justify-self: end;
+    }
+    
+    .logo {
+        order: 1;
+        font-size: 0.9rem;
+    }
+    
+    .main {
+        padding: 0.5rem 0.25rem;
+    }
+    
+    /* Texto más pequeño */
+    .page-title {
+        font-size: 1.25rem;
+    }
+    
+    .page-subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .info-card h3,
+    .edit-card h4 {
+        font-size: 1rem;
+    }
+    
+    .form-label {
+        font-size: 0.8rem;
+    }
+}
+
+/* Corregir notificaciones que pueden salirse */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    max-width: 350px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    border-left: 4px solid var(--primary);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    gap: 12px;
+    /* Asegurar que no cause overflow */
+    width: calc(100vw - 40px);
+    max-width: 350px;
+    box-sizing: border-box;
+}
+
+@media (max-width: 480px) {
+    .notification {
+        right: 10px;
+        top: 10px;
+        width: calc(100vw - 20px);
+        max-width: none;
+        padding: 12px;
+        font-size: 0.8rem;
+    }
+}
+
+/* Prevenir que elementos con position fixed causen problemas */
+.header {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Debugging: usar solo para encontrar problemas */
+/*
+* {
+    outline: 1px solid red !important;
+}
+*/
     </style>
 </head>
 <body>
     <!-- Header -->
-    <header class="header">
-        <nav class="nav">
-            <a href="/admin.html" class="logo">
-                <i class="fas fa-utensils"></i>
-                RestauranteWeb Admin
+    <!-- ===== HEADER MEJORADO CON NAVEGACIÓN MÓVIL ===== -->
+<header class="header">
+    <nav class="nav">
+        <a href="/admin.html" class="logo">
+            <i class="fas fa-utensils"></i>
+            RestauranteWeb Admin
+        </a>
+        
+        <!-- Botón hamburguesa para móvil -->
+        <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <div class="nav-links" id="nav-links">
+            <a href="/admin.html" class="nav-link">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
             </a>
-            
-            <div class="nav-links">
-                <a href="/admin.html" class="nav-link">
-                    <i class="fas fa-home"></i>
-                    Dashboard
-                </a>
-                <a href="/manage-restaurant.html" class="nav-link" style="color: var(--primary);">
-                    <i class="fas fa-store"></i>
-                    Mi Restaurante
-                </a>
+            <a href="/manage-restaurant.html" class="nav-link" style="color: var(--primary);">
+                <i class="fas fa-store"></i>
+                <span>Mi Restaurante</span>
+            </a>
+        </div>
+        
+        <div class="user-section">
+            <div class="user-info">
+                <div class="user-name" id="user-name">Cargando...</div>
+                <div class="user-role" id="user-role">admin</div>
             </div>
-            
-            <div class="user-section">
-                <div class="user-info">
-                    <div class="user-name" id="user-name">Cargando...</div>
-                    <div class="user-role" id="user-role">admin</div>
-                </div>
-                <div class="user-avatar" id="user-avatar">
-                    <i class="fas fa-user"></i>
-                </div>
-                <button class="logout-btn" id="logout-btn" title="Cerrar sesión">
-                    <i class="fas fa-sign-out-alt"></i>
-                </button>
+            <div class="user-avatar" id="user-avatar">
+                <i class="fas fa-user"></i>
             </div>
-        </nav>
-    </header>
+            <button class="logout-btn" id="logout-btn" title="Cerrar sesión">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </div>
+    </nav>
+</header>
+
+<!-- ===== CSS ADICIONAL PARA NAVEGACIÓN MÓVIL ===== -->
+<style>
+/* Botón hamburguesa */
+.nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--gray-700);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+    min-width: 44px;
+    min-height: 44px;
+}
+
+.nav-toggle:hover {
+    background-color: var(--gray-100);
+    color: var(--primary);
+}
+
+/* Responsive para navegación */
+@media (max-width: 768px) {
+    .nav {
+        position: relative;
+    }
+    
+    .nav-toggle {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        order: 3;
+    }
+    
+    .logo {
+        order: 1;
+        font-size: 1rem;
+    }
+    
+    .nav-links {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background-color: var(--white);
+        border-top: 1px solid var(--gray-200);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        flex-direction: column;
+        padding: 1rem;
+        gap: 1rem;
+        transform: translateY(-100%);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 1000;
+        max-height: calc(100vh - 70px);
+        overflow-y: auto;
+    }
+    
+    .nav-links.active {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .nav-link {
+        width: 100%;
+        text-align: center;
+        padding: 0.75rem;
+        border: 1px solid var(--gray-200);
+        border-radius: 0.5rem;
+        background: var(--gray-50);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .nav-link:hover {
+        background: var(--primary);
+        color: var(--white);
+        border-color: var(--primary);
+    }
+    
+    .user-section {
+        order: 2;
+        gap: 0.5rem;
+    }
+    
+    .user-info {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-links {
+        padding: 0.75rem;
+        gap: 0.75rem;
+    }
+    
+    .nav-link {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .nav-link span {
+        font-size: 0.8rem;
+    }
+}
+</style>
+
+<!-- ===== JAVASCRIPT PARA NAVEGACIÓN MÓVIL ===== -->
+<script>
+// Agregar al final de tu script existente, antes del DOMContentLoaded
+
+function setupMobileNavigation() {
+    const navToggle = document.getElementById('nav-toggle');
+    const navLinks = document.getElementById('nav-links');
+    
+    if (!navToggle || !navLinks) {
+        console.warn('Elementos de navegación móvil no encontrados');
+        return;
+    }
+    
+    console.log('✅ Navegación móvil inicializada');
+    
+    let isMenuOpen = false;
+    
+    function openMenu() {
+        isMenuOpen = true;
+        navLinks.classList.add('active');
+        updateIcon();
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeMenu() {
+        isMenuOpen = false;
+        navLinks.classList.remove('active');
+        updateIcon();
+        document.body.style.overflow = '';
+    }
+    
+    function updateIcon() {
+        const icon = navToggle.querySelector('i');
+        if (icon) {
+            if (isMenuOpen) {
+                icon.className = 'fas fa-times';
+                navToggle.setAttribute('aria-label', 'Cerrar menú');
+            } else {
+                icon.className = 'fas fa-bars';
+                navToggle.setAttribute('aria-label', 'Abrir menú');
+            }
+        }
+    }
+    
+    // Toggle del menú
+    navToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (isMenuOpen) {
+            closeMenu();
+        } else {
+            openMenu();
+        }
+    });
+    
+    // Cerrar menú al hacer click en un enlace
+    navLinks.addEventListener('click', function(e) {
+        if (e.target.classList.contains('nav-link')) {
+            setTimeout(closeMenu, 100);
+        }
+    });
+    
+    // Cerrar menú al hacer click fuera
+    document.addEventListener('click', function(e) {
+        if (!navToggle.contains(e.target) && !navLinks.contains(e.target)) {
+            if (isMenuOpen) {
+                closeMenu();
+            }
+        }
+    });
+    
+    // Cerrar menú con tecla Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && isMenuOpen) {
+            closeMenu();
+        }
+    });
+    
+    // Cerrar menú al redimensionar ventana
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768 && isMenuOpen) {
+            closeMenu();
+        }
+    });
+}
+
+// Modificar tu DOMContentLoaded existente para incluir esto:
+document.addEventListener('DOMContentLoaded', async function() {
+    // Tu código existente...
+    
+    // Agregar navegación móvil
+    setupMobileNavigation();
+    
+    // Verificar autenticación
+    const isAuthenticated = await checkAuth();
+    
+    if (isAuthenticated) {
+        await loadRestaurantData();
+        setupFormHandlers();
+        
+        const logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', logout);
+        }
+    }
+
+    console.log('Página de gestión de restaurante cargada');
+});
+</script>
 
     <!-- Main Content -->
     <main class="main">
