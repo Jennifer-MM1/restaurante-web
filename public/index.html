@@ -941,30 +941,33 @@
 <body>
    <!-- Header corregido -->
 <!-- ===== 1. HTML CORREGIDO ===== -->
+<!-- ===== HEADER ACTUALIZADO CON IMAGEN ===== -->
 <header class="header">
     <nav class="nav">
         <div class="nav-container">
             <div class="nav-brand">
                 <h1 class="logo">
+                    <!-- IMAGEN AGREGADA AQUÍ -->
+                    <img src="\images\PueblosMágicos.svg.png" alt="Logo Turismo" class="logo-image">
                     <i class="fas fa-utensils"></i>
-                    RestauranteWeb
+                    Dirección de Turismo
                 </h1>
             </div>
-            
+                         
             <!-- MENÚ DESKTOP -->
             <div class="nav-menu" id="nav-menu">
                 <a href="#inicio" class="nav-link active">Inicio</a>
                 <a href="#restaurantes" class="nav-link">Restaurantes</a>
-                <a href="https://turismo-app-production-cebd.up.railway.app/index.html" class="nav-link">Hospedaje</a>
+                <a href="#bares" class="nav-link">Hospedaje</a>
                 <a href="Contactos.html" class="nav-link">Contacto</a>
             </div>
-            
+                         
             <div class="nav-actions">
                 <a href="admin.html" class="btn btn-admin">
                     <i class="fas fa-user-shield"></i>
                     <span>Panel Admin</span>
                 </a>
-                
+                                 
                 <!-- BOTÓN HAMBURGUESA -->
                 <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú">
                     <i class="fas fa-bars"></i>
@@ -973,6 +976,94 @@
         </div>
     </nav>
 </header>
+
+<!-- ===== CSS SOLO PARA LA IMAGEN DEL LOGO ===== -->
+<style>
+/* Estilos específicos para la imagen del logo */
+.logo-image {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+    margin-right: var(--spacing-xs);
+    transition: var(--transition);
+    flex-shrink: 0;
+    background: var(--white);
+    padding: 2px;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Hover effect sutil */
+.nav-brand:hover .logo-image {
+    transform: scale(1.05);
+}
+
+/* ===== RESPONSIVE PARA LA IMAGEN ===== */
+@media (max-width: 768px) {
+    .logo-image {
+        width: 35px;
+        height: 35px;
+        margin-right: var(--spacing-xs);
+    }
+}
+
+@media (max-width: 480px) {
+    .logo-image {
+        width: 30px;
+        height: 30px;
+        margin-right: 4px;
+    }
+    
+    .nav-brand .logo {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 360px) {
+    .logo-image {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .nav-brand .logo {
+        font-size: 1rem;
+    }
+}
+
+/* Fallback si no carga la imagen */
+.logo-image::after {
+    content: "🏛️";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+    display: none;
+}
+
+.logo-image[src=""],
+.logo-image:not([src]) {
+    background: var(--primary);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-image[src=""]::after,
+.logo-image:not([src])::after {
+    display: block;
+    position: static;
+    transform: none;
+}
+
+/* Asegurar que el logo mantenga su layout */
+.nav-brand .logo {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+</style>
 
 <!-- ===== 2. CSS COMPLETO PARA EL MENÚ ===== -->
 <style>
@@ -2931,7 +3022,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     navMenu.classList.toggle('active');
                 });
                 
-     // Cerrar menú al hacer click en un enlace
+                // Cerrar menú al hacer click en un enlace
                 navMenu.querySelectorAll('.nav-link').forEach(link => {
                     link.addEventListener('click', () => {
                         navMenu.classList.remove('active');
