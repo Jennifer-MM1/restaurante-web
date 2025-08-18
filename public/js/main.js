@@ -1,5 +1,217 @@
-// ===== main.js - Función actualizada para mostrar restaurantes =====
+// ===== VARIABLES GLOBALES =====
+let currentPage = 1;
+let currentFilter = 'todos';
+let currentSearch = '';
+let isLoading = false;
 
+// ===== ELEMENTOS DEL DOM =====
+const elements = {
+    // Navegación
+    navToggle: document.getElementById('nav-toggle'),
+    navMenu: document.getElementById('nav-menu'),
+    navLinks: document.querySelectorAll('.nav-link'),
+    
+    // Búsqueda
+    searchInput: document.getElementById('search-input'),
+    searchBtn: document.getElementById('search-btn'),
+    
+    // Filtros
+    filterTabs: document.querySelectorAll('.filter-tab'),
+    
+    // Resultados
+    loading: document.getElementById('loading'),
+    resultsGrid: document.getElementById('results-grid'),
+    resultsCount: document.getElementById('results-count'),
+    emptyState: document.getElementById('empty-state'),
+    
+    // Estadísticas
+    totalCount: document.getElementById('total-count'),
+    restaurantCount: document.getElementById('restaurant-count'),
+    barCount: document.getElementById('bar-count'),
+    cafeCount: document.getElementById('cafe-count'),
+    
+    // Paginación
+    pagination: document.getElementById('pagination'),
+    paginationInfo: document.getElementById('pagination-info'),
+    prevBtn: document.getElementById('prev-btn'),
+    nextBtn: document.getElementById('next-btn'),
+    
+    // Modal
+    modal: document.getElementById('restaurant-modal'),
+    modalTitle: document.getElementById('modal-title'),
+    modalBody: document.getElementById('modal-body'),
+    modalClose: document.getElementById('modal-close')
+};
+
+// ===== INICIALIZACIÓN =====
+document.addEventListener('DOMContentLoaded', function() {
+    initializeApp();
+});
+
+function initializeApp() {
+    setupEventListeners();
+    setupMobileMenu(); // ← FUNCIÓN DEL MENÚ MÓVIL INTEGRADA
+    loadStatistics();
+    loadRestaurants();
+    updateActiveNavLink();
+}
+
+// ===== EVENT LISTENERS =====
+function setupEventListeners() {
+    // Navegación móvil ya se maneja en setupMobileMenu()
+    
+    // Búsqueda
+    if (elements.searchInput) {
+        elements.searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+    }
+    
+    if (elements.searchBtn) {
+        elements.searchBtn.addEventListener('click', performSearch);
+    }
+    
+    // Filtros
+    elements.filterTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const filter = this.dataset.filter;
+            setActiveFilter(filter);
+            loadRestaurants();
+        });
+    });
+    
+    // Modal
+    if (elements.modalClose) {
+        elements.modalClose.addEventListener('click', closeModal);
+    }
+    
+    if (elements.modal) {
+        elements.modal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    }
+    
+    // Paginación
+    if (elements.prevBtn) {
+        elements.prevBtn.addEventListener('click', function() {
+            if (currentPage > 1) {
+                currentPage--;
+                loadRestaurants();
+            }
+        });
+    }
+    
+    if (elements.nextBtn) {
+        elements.nextBtn.addEventListener('click', function() {
+            currentPage++;
+            loadRestaurants();
+        });
+    }
+    
+    // Tecla Escape para cerrar modal
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && elements.modal && elements.modal.style.display === 'block') {
+            closeModal();
+        }
+    });
+}
+
+// ===== 🍔 JAVASCRIPT PARA MENÚ MÓVIL =====
+function setupMobileMenu() {
+    const navToggle = document.getElementById('nav-toggle');
+    const navMenu = document.getElementById('nav-menu');
+    
+    if (!navToggle || !navMenu) {
+        console.warn('⚠️ Elementos del menú móvil no encontrados');
+        console.log('nav-toggle:', navToggle);
+        console.log('nav-menu:', navMenu);
+        return;
+    }
+    
+    console.log('✅ Menú móvil inicializado correctamente');
+    
+    // Toggle del menú
+    navToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const isActive = navMenu.classList.contains('active');
+        
+        if (isActive) {
+            closeMobileMenu();
+        } else {
+            openMobileMenu();
+        }
+        
+        console.log('🍔 Menú toggled:', !isActive ? 'abierto' : 'cerrado');
+    });
+    
+    // Cerrar menú al hacer click en un enlace
+    const navLinks = navMenu.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            console.log('🔗 Link clickeado, cerrando menú');
+            closeMobileMenu();
+        });
+    });
+    
+    // Cerrar menú al hacer click fuera
+    document.addEventListener('click', function(e) {
+        if (!navToggle.contains(e.target) && !navMenu.contains(e.target)) {
+            if (navMenu.classList.contains('active')) {
+                console.log('👆 Click fuera del menú, cerrando');
+                closeMobileMenu();
+            }
+        }
+    });
+    
+    // Cerrar menú con tecla Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && navMenu.classList.contains('active')) {
+            console.log('⌨️ Escape presionado, cerrando menú');
+            closeMobileMenu();
+        }
+    });
+    
+    // Cerrar menú al redimensionar ventana
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768 && navMenu.classList.contains('active')) {
+            console.log('📱 Pantalla redimensionada, cerrando menú');
+            closeMobileMenu();
+        }
+    });
+    
+    function openMobileMenu() {
+        navMenu.classList.add('active');
+        updateMenuIcon(true);
+    }
+    
+    function closeMobileMenu() {
+        navMenu.classList.remove('active');
+        updateMenuIcon(false);
+    }
+    
+    function updateMenuIcon(isOpen) {
+        const icon = navToggle.querySelector('i');
+        if (icon) {
+            if (isOpen) {
+                icon.className = 'fas fa-times';
+                navToggle.setAttribute('aria-label', 'Cerrar menú');
+            } else {
+                icon.className = 'fas fa-bars';
+                navToggle.setAttribute('aria-label', 'Abrir menú');
+            }
+        }
+    }
+}
+
+// ===== FUNCIONES DE RESTAURANTES (TU CÓDIGO EXISTENTE) =====
+
+// ===== main.js - Función actualizada para mostrar restaurantes =====
 function createRestaurantCard(restaurant) {
     const typeIcon = getTypeIcon(restaurant.tipo);
     const statusIcon = restaurant.activo ? 
@@ -171,4 +383,100 @@ function openImageModal(imageUrl, restaurantName) {
             document.body.removeChild(modal);
         }
     };
+}
+
+// ===== FUNCIONES AUXILIARES =====
+function getTypeIcon(tipo) {
+    const icons = {
+        'restaurante': 'fas fa-utensils',
+        'bar': 'fas fa-cocktail',
+        'cafeteria': 'fas fa-coffee'
+    };
+    return icons[tipo] || 'fas fa-store';
+}
+
+function capitalizeFirst(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function formatPhone(phone) {
+    if (!phone) return 'No disponible';
+    return phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+}
+
+// ===== FUNCIONES DE CARGA DE DATOS =====
+async function loadStatistics() {
+    // Tu código para cargar estadísticas
+}
+
+async function loadRestaurants() {
+    // Tu código para cargar restaurantes
+}
+
+function updateActiveNavLink() {
+    // Tu código para actualizar navegación activa
+}
+
+function performSearch() {
+    // Tu código para realizar búsqueda
+}
+
+function setActiveFilter(filter) {
+    // Tu código para filtros
+}
+
+function closeModal() {
+    if (elements.modal) {
+        elements.modal.style.display = 'none';
+    }
+}
+
+function displayHorarios(horarios) {
+    // Tu código para mostrar horarios
+    return '';
+}
+
+function displayMenu(menu) {
+    // Tu código para mostrar menú
+    return '';
+}
+
+function displayRedesSociales(redes) {
+    // Tu código para mostrar redes sociales
+    return '';
+}
+
+// ===== 🐛 FUNCIÓN PARA DETECTAR OVERFLOW (DEBUGGING) =====
+function detectOverflow() {
+    console.log('🔍 Detectando elementos que causan overflow...');
+    const elements = document.querySelectorAll('*');
+    let problemElements = [];
+    
+    elements.forEach(el => {
+        const rect = el.getBoundingClientRect();
+        if (rect.right > window.innerWidth) {
+            console.log('❌ Elemento problemático:', el, 'Ancho:', rect.width, 'Right:', rect.right);
+            el.style.border = '2px solid red';
+            problemElements.push(el);
+        }
+    });
+    
+    if (problemElements.length === 0) {
+        console.log('✅ No se encontraron elementos que causen overflow');
+    } else {
+        console.log(`❌ Se encontraron ${problemElements.length} elementos problemáticos`);
+    }
+    
+    return problemElements;
+}
+
+// ===== 🔧 FUNCIÓN PARA DEBUG DEL MENÚ =====
+function debugMenu() {
+    console.log('🔍 DEBUG DEL MENÚ:');
+    console.log('nav-toggle:', document.getElementById('nav-toggle'));
+    console.log('nav-menu:', document.getElementById('nav-menu'));
+    console.log('Ancho de pantalla:', window.innerWidth);
+    console.log('Menú activo:', document.getElementById('nav-menu')?.classList.contains('active'));
+    console.log('CSS aplicado al toggle:', getComputedStyle(document.getElementById('nav-toggle')).display);
+    console.log('CSS aplicado al menu:', getComputedStyle(document.getElementById('nav-menu')).transform);
 }

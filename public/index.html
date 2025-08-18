@@ -931,46 +931,403 @@
                 gap: var(--spacing-sm);
             }
         }
+
+        
     </style>
+
+
+
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <nav class="nav">
-            <div class="nav-container">
-                <div class="nav-brand">
-                    <h1 class="logo">
-                        <i class="fas fa-utensils"></i>
-                        RestauranteWeb
-                    </h1>
-                </div>
-                
-                <div class="nav-menu" id="nav-menu">
-                    <a href="#inicio" class="nav-link active">Inicio</a>
-          <a href="https://turismo-app-production-cebd.up.railway.app" class="nav-link" target="_blank">Hospedaje</a>
-                    <a href="#restaurantes" class="nav-link">Restaurantes</a>
-                    <a href="#bares" class="nav-link">Bares</a>
-                    <a href="#cafeterias" class="nav-link">Cafeterías</a>
-                    <a href="Contactos.html" class="nav-link">Contacto</a>
-                </div>
-                
-                <div class="nav-actions">
-                    <a href="admin.html" class="btn btn-admin">
-                        <i class="fas fa-user-shield"></i>
-                        Panel Admin
-                    </a>
-                    <!-- Indicador de conexión WebSocket -->
-                    <div class="connection-indicator" id="connection-indicator">
-                        <div class="connection-dot"></div>
-                        <span id="connection-status">Conectando...</span>
-                    </div>
-                    <button class="nav-toggle" id="nav-toggle">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                </div>
+   <!-- Header corregido -->
+<!-- ===== 1. HTML CORREGIDO ===== -->
+<header class="header">
+    <nav class="nav">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h1 class="logo">
+                    <i class="fas fa-utensils"></i>
+                    RestauranteWeb
+                </h1>
             </div>
-        </nav>
-    </header>
+            
+            <!-- MENÚ DESKTOP -->
+            <div class="nav-menu" id="nav-menu">
+                <a href="#inicio" class="nav-link active">Inicio</a>
+                <a href="#restaurantes" class="nav-link">Restaurantes</a>
+                <a href="https://turismo-app-production-cebd.up.railway.app/index.html" class="nav-link">Hospedaje</a>
+                <a href="Contactos.html" class="nav-link">Contacto</a>
+            </div>
+            
+            <div class="nav-actions">
+                <a href="admin.html" class="btn btn-admin">
+                    <i class="fas fa-user-shield"></i>
+                    <span>Panel Admin</span>
+                </a>
+                
+                <!-- BOTÓN HAMBURGUESA -->
+                <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<!-- ===== 2. CSS COMPLETO PARA EL MENÚ ===== -->
+<style>
+/* RESETEAR ESTILOS DEL HEADER */
+.header {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--gray-200);
+    z-index: 1001 !important;
+    height: 70px;
+}
+
+.nav {
+    width: 100%;
+    height: 100%;
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg);
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+}
+
+/* LOGO */
+.nav-brand .logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin: 0;
+}
+
+/* MENÚ DESKTOP */
+.nav-menu {
+    display: flex;
+    gap: var(--spacing-xl);
+    align-items: center;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: var(--gray-700);
+    font-weight: 500;
+    transition: var(--transition);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: var(--primary);
+    background: rgba(37, 99, 235, 0.1);
+}
+
+/* ACCIONES */
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.9rem;
+}
+
+.btn-admin {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.btn-admin:hover {
+    background: var(--primary-dark);
+}
+
+/* BOTÓN HAMBURGUESA - OCULTO EN DESKTOP */
+.nav-toggle {
+    display: none !important;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--gray-700);
+    cursor: pointer;
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-md);
+    transition: var(--transition);
+    z-index: 1002;
+    min-width: 44px;
+    min-height: 44px;
+}
+
+.nav-toggle:hover {
+    background-color: var(--gray-100);
+    color: var(--primary);
+}
+
+/* ===== RESPONSIVE - TABLET Y MÓVIL ===== */
+@media (max-width: 768px) {
+    /* MOSTRAR BOTÓN HAMBURGUESA */
+    .nav-toggle {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* OCULTAR MENÚ DESKTOP */
+    .nav-menu {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background-color: var(--white);
+        border-top: 1px solid var(--gray-200);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        flex-direction: column;
+        padding: var(--spacing-lg);
+        gap: var(--spacing-lg);
+        transform: translateY(-100%);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1000;
+        max-height: calc(100vh - 70px);
+        overflow-y: auto;
+    }
+    
+    /* MENÚ ACTIVO */
+    .nav-menu.active {
+        transform: translateY(0) !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+    
+    /* ENLACES EN MÓVIL */
+    .nav-link {
+        width: 100%;
+        text-align: center;
+        padding: var(--spacing-md);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-md);
+        background: var(--gray-50);
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    
+    .nav-link:hover,
+    .nav-link.active {
+        background: var(--primary) !important;
+        color: var(--white) !important;
+        border-color: var(--primary);
+        transform: translateY(-1px);
+    }
+    
+    /* BOTÓN ADMIN EN MÓVIL */
+    .btn-admin {
+        padding: var(--spacing-sm) var(--spacing-md);
+        font-size: 0.8rem;
+    }
+    
+    .btn-admin span {
+        display: none;
+    }
+}
+
+/* MÓVIL PEQUEÑO */
+@media (max-width: 480px) {
+    .nav-container {
+        padding: 0 var(--spacing-sm);
+    }
+    
+    .logo {
+        font-size: 1.25rem;
+    }
+    
+    .nav-menu {
+        padding: var(--spacing-md);
+        gap: var(--spacing-md);
+    }
+    
+    .nav-link {
+        padding: var(--spacing-sm);
+        font-size: 0.9rem;
+    }
+}
+
+/* OVERLAY PARA CERRAR MENÚ */
+.nav-overlay {
+    position: fixed;
+    top: 70px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.nav-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+@media (min-width: 769px) {
+    .nav-overlay {
+        display: none !important;
+    }
+}
+</style>
+
+<!-- ===== 3. JAVASCRIPT MEJORADO ===== -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Inicializando menú móvil...');
+    
+    const navToggle = document.getElementById('nav-toggle');
+    const navMenu = document.getElementById('nav-menu');
+    
+    // Verificar elementos
+    if (!navToggle) {
+        console.error('❌ No se encontró #nav-toggle');
+        return;
+    }
+    
+    if (!navMenu) {
+        console.error('❌ No se encontró #nav-menu');
+        return;
+    }
+    
+    console.log('✅ Elementos encontrados:', { navToggle, navMenu });
+    
+    // Crear overlay
+    let overlay = document.querySelector('.nav-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'nav-overlay';
+        overlay.id = 'nav-overlay';
+        document.body.appendChild(overlay);
+    }
+    
+    // Estado del menú
+    let isMenuOpen = false;
+    
+    // Función para abrir menú
+    function openMenu() {
+        console.log('🔓 Abriendo menú...');
+        isMenuOpen = true;
+        navMenu.classList.add('active');
+        overlay.classList.add('active');
+        updateIcon();
+        document.body.style.overflow = 'hidden'; // Evitar scroll
+    }
+    
+    // Función para cerrar menú
+    function closeMenu() {
+        console.log('🔒 Cerrando menú...');
+        isMenuOpen = false;
+        navMenu.classList.remove('active');
+        overlay.classList.remove('active');
+        updateIcon();
+        document.body.style.overflow = ''; // Restaurar scroll
+    }
+    
+    // Actualizar icono
+    function updateIcon() {
+        const icon = navToggle.querySelector('i');
+        if (icon) {
+            if (isMenuOpen) {
+                icon.className = 'fas fa-times';
+                navToggle.setAttribute('aria-label', 'Cerrar menú');
+            } else {
+                icon.className = 'fas fa-bars';
+                navToggle.setAttribute('aria-label', 'Abrir menú');
+            }
+        }
+    }
+    
+    // Click en botón hamburguesa
+    navToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        console.log('🍔 Toggle clicked, menu open:', isMenuOpen);
+        
+        if (isMenuOpen) {
+            closeMenu();
+        } else {
+            openMenu();
+        }
+    });
+    
+    // Click en enlaces del menú
+    navMenu.addEventListener('click', function(e) {
+        if (e.target.classList.contains('nav-link')) {
+            console.log('🔗 Nav link clicked');
+            setTimeout(closeMenu, 100);
+        }
+    });
+    
+    // Click en overlay
+    overlay.addEventListener('click', function() {
+        console.log('👆 Overlay clicked');
+        closeMenu();
+    });
+    
+    // Tecla Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && isMenuOpen) {
+            console.log('⌨️ Escape pressed');
+            closeMenu();
+        }
+    });
+    
+    // Redimensionar ventana
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768 && isMenuOpen) {
+            console.log('📱 Window resized, closing menu');
+            closeMenu();
+        }
+    });
+    
+    console.log('✅ Menú móvil inicializado correctamente');
+    
+    // Función de debug
+    window.debugMenu = function() {
+        console.log('🔍 DEBUG MENÚ:');
+        console.log('Toggle button:', navToggle);
+        console.log('Menu:', navMenu);
+        console.log('Is open:', isMenuOpen);
+        console.log('Screen width:', window.innerWidth);
+        console.log('Toggle display:', getComputedStyle(navToggle).display);
+        console.log('Menu classes:', navMenu.className);
+    };
+});
+</script>
 
     
 
@@ -1044,74 +1401,10 @@
             </div>
         </section>
 
-        <!-- Nueva Sección: Sobre Jalpan de Serra -->
-        <section id="sobre-jalpan" class="section section-alt">
-            <div class="container">
-                <div class="section-header">
-                    <h2 class="section-title">Descubre Jalpan de Serra</h2>
-                    <p class="section-subtitle">
-                        Un pueblo mágico en la Sierra Gorda queretana con una gastronomía única que combina 
-                        tradiciones serranas, sabores ancestrales y la hospitalidad característica de la región
-                    </p>
-                </div>
-                
-                <div class="jalpan-features">
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-mountain"></i>
-                        </div>
-                        <h3 class="feature-title">Gastronomía Serrana</h3>
-                        <p class="feature-description">
-                            La cocina de Jalpan se caracteriza por sus sabores únicos de la sierra, 
-                            con ingredientes frescos de la región y técnicas culinarias tradicionales.
-                        </p>
-                    </div>
-
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-leaf"></i>
-                        </div>
-                        <h3 class="feature-title">Ingredientes Locales</h3>
-                        <p class="feature-description">
-                            Productos de la Sierra Gorda como quelites, hongos silvestres, miel de abeja, 
-                            trucha y una gran variedad de hierbas aromáticas de la región.
-                        </p>
-                    </div>
-
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-church"></i>
-                        </div>
-                        <h3 class="feature-title">Tradición Franciscana</h3>
-                        <p class="feature-description">
-                            La herencia de las misiones franciscanas se refleja en platillos tradicionales 
-                            que han pasado de generación en generación por más de 250 años.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="cta-banner">
-                    <div class="cta-content">
-                        <h3 class="cta-title">¿Quieres conocer más sobre nuestra gastronomía serrana?</h3>
-                        <p class="cta-text">
-                            Explora la historia, tradiciones y lugares gastronómicos más emblemáticos de Jalpan de Serra
-                        </p>
-                        <a href="jalpan-de-serra.html" class="btn btn-light">
-                            <i class="fas fa-book-open"></i>
-                            Conocer más sobre Jalpan
-                        </a>
-                    </div>
-                    <div class="cta-visual">
-                        <div class="visual-placeholder">
-                            <i class="fas fa-utensils"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+        
 
         <!-- Nueva Sección: Estadísticas de la Ciudad -->
-        <section class="stats-section">
+       <!-- <section class="stats-section">
             <div class="container">
                 <h2 class="section-title text-white">Jalpan de Serra en números</h2>
                 <div class="city-stats">
@@ -1156,7 +1449,7 @@
                     </div>
                 </div>
             </div>
-        </section>
+        </section>-->
 
         <!-- Filters Section -->
         <section class="filters">
@@ -1229,6 +1522,72 @@
             </div>
         </section>
     </main>
+
+    <!-- Nueva Sección: Sobre Jalpan de Serra -->
+        <section id="sobre-jalpan" class="section section-alt">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Conoce Jalpan de Serra</h2>
+                    <p class="section-subtitle">
+                        Un pueblo mágico en la Sierra Gorda queretana con una gastronomía única que combina 
+                        tradiciones serranas, sabores ancestrales y la hospitalidad característica de la región
+                    </p>
+                </div>
+                
+                <div class="jalpan-features">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-mountain"></i>
+                        </div>
+                        <h3 class="feature-title">Gastronomía Serrana</h3>
+                        <p class="feature-description">
+                            La cocina de Jalpan se caracteriza por sus sabores únicos de la sierra, 
+                            con ingredientes frescos de la región y técnicas culinarias tradicionales.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <h3 class="feature-title">Ingredientes Locales</h3>
+                        <p class="feature-description">
+                            Productos de la Sierra Gorda como quelites, hongos silvestres, miel de abeja, 
+                            trucha y una gran variedad de hierbas aromáticas de la región.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-church"></i>
+                        </div>
+                        <h3 class="feature-title">Tradición Franciscana</h3>
+                        <p class="feature-description">
+                            La herencia de las misiones franciscanas se refleja en platillos tradicionales 
+                            que han pasado de generación en generación por más de 250 años.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="cta-banner">
+                    <div class="cta-content">
+                        <h3 class="cta-title">¿Quieres conocer más sobre nuestra gastronomía serrana?</h3>
+                        <p class="cta-text">
+                            Explora la historia, tradiciones y lugares gastronómicos más emblemáticos de Jalpan de Serra
+                        </p>
+                        <a href="jalpan-de-serra.html" class="btn btn-light">
+                            <i class="fas fa-book-open"></i>
+                            Conocer más sobre Jalpan
+                        </a>
+                    </div>
+                    <div class="cta-visual">
+                        <div class="visual-placeholder">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
     <!-- Footer -->
     <footer class="footer">
@@ -2572,7 +2931,7 @@
                     navMenu.classList.toggle('active');
                 });
                 
-                // Cerrar menú al hacer click en un enlace
+     // Cerrar menú al hacer click en un enlace
                 navMenu.querySelectorAll('.nav-link').forEach(link => {
                     link.addEventListener('click', () => {
                         navMenu.classList.remove('active');
