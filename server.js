@@ -884,6 +884,461 @@ app.post('/api/auth/register', async (req, res) => {
 
 console.log('✅ Rutas de restaurantes agregadas');
 
+// ===== AGREGAR ESTAS RUTAS DESPUÉS DE LAS RUTAS DE RESTAURANTES =====
+// Pegar después de la última ruta que agregaste
+
+// ===== RUTAS DE SETUP Y PRUEBA =====
+
+// GET /setup - Crear admin de prueba
+app.get('/setup', async (req, res) => {
+  try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.send(`
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px;">
+          <h1 style="color: #ef4444;">❌ MongoDB no conectado</h1>
+          <p>Verifica tu archivo .env</p>
+          <a href="/test">Ver diagnóstico</a>
+        </div>
+      `);
+    }
+
+    const existingAdmin = await Admin.findOne({ email: 'admin@test.com' });
+    
+    if (existingAdmin) {
+      return res.send(`
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; border: 2px solid #10b981; border-radius: 10px; background: #f0fdf4;">
+          <h1 style="color: #10b981;">✅ Admin de prueba ya existe</h1>
+          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <p><strong>Email:</strong> admin@test.com</p>
+            <p><strong>Password:</strong> password123</p>
+          </div>
+          <a href="/login.html" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-right: 10px;">🔐 Ir al Login</a>
+          <a href="/admin.html" style="background: #059669; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">🎛️ Panel Admin</a>
+        </div>
+      `);
+    }
+
+    const nuevoAdmin = new Admin({
+      nombre: 'Admin',
+      apellido: 'Prueba',
+      email: 'admin@test.com',
+      password: 'password123',
+      telefono: '4441234567'
+    });
+
+    await nuevoAdmin.save();
+
+    res.send(`
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; border: 2px solid #10b981; border-radius: 10px; background: #f0fdf4;">
+        <h1 style="color: #10b981;">🎉 Admin creado exitosamente</h1>
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <p><strong>Email:</strong> admin@test.com</p>
+          <p><strong>Password:</strong> password123</p>
+        </div>
+        <a href="/login.html" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">🔐 Probar Login</a>
+      </div>
+    `);
+
+  } catch (error) {
+    console.error('Error en setup:', error);
+    res.send(`
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px;">
+        <h1 style="color: #ef4444;">❌ Error: ${error.message}</h1>
+        <a href="/test">Ver diagnóstico</a>
+      </div>
+    `);
+  }
+});
+
+// ===== RUTAS DE ACTUALIZACIÓN DE RESTAURANTE =====
+
+// PATCH /api/restaurants/my-restaurant/schedule - Actualizar horarios
+app.patch('/api/restaurants/my-restaurant/schedule', verificarToken, async (req, res) => {
+  try {
+    const { horarios } = req.body;
+    
+    if (!horarios) {
+      return res.status(400).json({
+        success: false,
+        message: 'Los horarios son requeridos'
+      });
+    }
+    
+    // Validar estructura de horarios
+    const diasValidos = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
+    const horariosValidos = {};
+    
+    diasValidos.forEach(dia => {
+      if (horarios[dia]) {
+        horariosValidos[dia] = {
+          abierto: horarios[dia].abierto !== undefined ? horarios[dia].abierto : true,
+          apertura: horarios[dia].apertura || '09:00',
+          cierre: horarios[dia].cierre || '22:00'
+        };
+      }
+    });
+    
+    const restaurant = await Restaurant.findOneAndUpdate(
+      { adminId: req.admin._id, activo: true },
+      {
+        horarios: horariosValidos,
+        fechaActualizacion: new Date()
+      },
+      { new: true, runValidators: true }
+    ).populate('adminId', 'nombre apellido email telefono');
+    
+    if (!restaurant) {
+      return res.status(404).json({
+        success: false,
+        message: 'Establecimiento no encontrado'
+      });
+    }
+    
+    console.log('✅ Horarios actualizados:', restaurant.nombre);
+    
+    res.json({
+      success: true,
+      message: 'Horarios actualizados exitosamente',
+      data: restaurant
+    });
+    
+  } catch (error) {
+    console.error('❌ Error actualizando horarios:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error del servidor',
+      error: error.message
+    });
+  }
+});
+
+// PATCH /api/restaurants/my-restaurant/menu - Actualizar menú
+app.patch('/api/restaurants/my-restaurant/menu', verificarToken, async (req, res) => {
+  try {
+    const { menu } = req.body;
+    
+    if (!menu || !Array.isArray(menu)) {
+      return res.status(400).json({
+        success: false,
+        message: 'El menú debe ser un array válido'
+      });
+    }
+    
+    // Validar estructura del menú
+    for (const categoria of menu) {
+      if (!categoria.categoria || !categoria.items || !Array.isArray(categoria.items)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Estructura de menú inválida'
+        });
+      }
+      
+      for (const item of categoria.items) {
+        if (!item.nombre || typeof item.precio !== 'number' || item.precio < 0) {
+          return res.status(400).json({
+            success: false,
+            message: 'Cada item del menú debe tener nombre y precio válido'
+          });
+        }
+      }
+    }
+    
+    const restaurant = await Restaurant.findOneAndUpdate(
+      { adminId: req.admin._id, activo: true },
+      {
+        menu: menu,
+        fechaActualizacion: new Date()
+      },
+      { new: true, runValidators: true }
+    ).populate('adminId', 'nombre apellido email telefono');
+    
+    if (!restaurant) {
+      return res.status(404).json({
+        success: false,
+        message: 'Establecimiento no encontrado'
+      });
+    }
+    
+    console.log('✅ Menú actualizado:', restaurant.nombre);
+    
+    res.json({
+      success: true,
+      message: 'Menú actualizado exitosamente',
+      data: restaurant
+    });
+    
+  } catch (error) {
+    console.error('❌ Error actualizando menú:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error del servidor',
+      error: error.message
+    });
+  }
+});
+
+// PATCH /api/restaurants/my-restaurant/social-media - Actualizar redes sociales
+app.patch('/api/restaurants/my-restaurant/social-media', verificarToken, async (req, res) => {
+  try {
+    const { redes } = req.body;
+    
+    if (!redes) {
+      return res.status(400).json({
+        success: false,
+        message: 'Los datos de redes sociales son requeridos'
+      });
+    }
+    
+    // Validar URLs si se proporcionan
+    const redesActualizadas = {};
+    
+    if (redes.facebook) {
+      if (redes.facebook.trim() !== '') {
+        try {
+          new URL(redes.facebook);
+          redesActualizadas.facebook = redes.facebook.trim();
+        } catch {
+          return res.status(400).json({
+            success: false,
+            message: 'La URL de Facebook no es válida'
+          });
+        }
+      }
+    }
+    
+    if (redes.website) {
+      if (redes.website.trim() !== '') {
+        try {
+          new URL(redes.website);
+          redesActualizadas.website = redes.website.trim();
+        } catch {
+          return res.status(400).json({
+            success: false,
+            message: 'La URL del website no es válida'
+          });
+        }
+      }
+    }
+    
+    if (redes.instagram) {
+      redesActualizadas.instagram = redes.instagram.trim();
+    }
+    
+    if (redes.twitter) {
+      redesActualizadas.twitter = redes.twitter.trim();
+    }
+    
+    const restaurant = await Restaurant.findOneAndUpdate(
+      { adminId: req.admin._id, activo: true },
+      {
+        redes: redesActualizadas,
+        fechaActualizacion: new Date()
+      },
+      { new: true, runValidators: true }
+    ).populate('adminId', 'nombre apellido email telefono');
+    
+    if (!restaurant) {
+      return res.status(404).json({
+        success: false,
+        message: 'Establecimiento no encontrado'
+      });
+    }
+    
+    console.log('✅ Redes sociales actualizadas:', restaurant.nombre);
+    
+    res.json({
+      success: true,
+      message: 'Redes sociales actualizadas exitosamente',
+      data: restaurant
+    });
+    
+  } catch (error) {
+    console.error('❌ Error actualizando redes sociales:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error del servidor',
+      error: error.message
+    });
+  }
+});
+
+// PATCH /api/restaurants/my-restaurant - Actualizar todo el restaurante
+app.patch('/api/restaurants/my-restaurant', verificarToken, async (req, res) => {
+  try {
+    const updateData = req.body;
+    
+    // Campos permitidos para actualizar
+    const allowedUpdates = [
+      'nombre', 'descripcion', 'telefono', 'email', 'direccion', 
+      'horarios', 'menu', 'redes'
+    ];
+    
+    const updates = {};
+    allowedUpdates.forEach(field => {
+      if (updateData[field] !== undefined) {
+        updates[field] = updateData[field];
+      }
+    });
+    
+    // Agregar fecha de actualización
+    updates.fechaActualizacion = new Date();
+    
+    const restaurant = await Restaurant.findOneAndUpdate(
+      { adminId: req.admin._id, activo: true },
+      updates,
+      { new: true, runValidators: true }
+    ).populate('adminId', 'nombre apellido email telefono');
+    
+    if (!restaurant) {
+      return res.status(404).json({
+        success: false,
+        message: 'Establecimiento no encontrado'
+      });
+    }
+    
+    console.log('✅ Restaurante actualizado completamente:', restaurant.nombre);
+    
+    res.json({
+      success: true,
+      message: 'Establecimiento actualizado exitosamente',
+      data: restaurant
+    });
+    
+  } catch (error) {
+    console.error('❌ Error actualizando restaurante:', error);
+    
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Error de validación',
+        errors: Object.values(error.errors).map(err => err.message)
+      });
+    }
+    
+    res.status(500).json({
+      success: false,
+      message: 'Error del servidor',
+      error: error.message
+    });
+  }
+});
+
+// ===== RUTAS DE PERFIL Y CAMBIO DE PASSWORD =====
+
+// PUT /api/auth/profile - Actualizar perfil
+app.put('/api/auth/profile', verificarToken, async (req, res) => {
+  try {
+    const { nombre, apellido, telefono, configuracion } = req.body;
+
+    // Validar campos requeridos
+    if (!nombre || !apellido || !telefono) {
+      return res.status(400).json({
+        success: false,
+        message: 'Nombre, apellido y teléfono son obligatorios'
+      });
+    }
+
+    const admin = await Admin.findByIdAndUpdate(
+      req.admin._id,
+      {
+        ...(nombre && { nombre }),
+        ...(apellido && { apellido }),
+        ...(telefono && { telefono }),
+        ...(configuracion && { configuracion })
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!admin) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuario no encontrado'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Perfil actualizado exitosamente',
+      data: {
+        admin: {
+          id: admin._id,
+          nombre: admin.nombre,
+          apellido: admin.apellido,
+          email: admin.email,
+          telefono: admin.telefono,
+          rol: admin.rol,
+          fechaCreacion: admin.fechaCreacion,
+          ultimoAcceso: admin.ultimoAcceso
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Error actualizando perfil:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+});
+
+// PUT /api/auth/change-password - Cambiar contraseña
+app.put('/api/auth/change-password', verificarToken, async (req, res) => {
+  try {
+    const { passwordActual, passwordNueva } = req.body;
+
+    if (!passwordActual || !passwordNueva) {
+      return res.status(400).json({
+        success: false,
+        message: 'Contraseña actual y nueva son obligatorias'
+      });
+    }
+
+    if (passwordNueva.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'La nueva contraseña debe tener al menos 6 caracteres'
+      });
+    }
+
+    // Obtener admin con contraseña
+    const admin = await Admin.findById(req.admin._id).select('+password');
+
+    if (!admin) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuario no encontrado'
+      });
+    }
+
+    // Verificar contraseña actual
+    const passwordValida = await admin.compararPassword(passwordActual);
+    if (!passwordValida) {
+      return res.status(400).json({
+        success: false,
+        message: 'Contraseña actual incorrecta'
+      });
+    }
+
+    // Actualizar contraseña
+    admin.password = passwordNueva;
+    await admin.save();
+
+    res.json({
+      success: true,
+      message: 'Contraseña actualizada exitosamente'
+    });
+
+  } catch (error) {
+    console.error('Error cambiando contraseña:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+});
+
+console.log('✅ Rutas de setup, menú y horarios agregadas');
 // ===== MANEJO DE ERRORES =====
 app.use('*', (req, res) => {
   res.status(404).json({
