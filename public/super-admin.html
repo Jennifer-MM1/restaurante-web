@@ -863,31 +863,697 @@
                 justify-content: center;
             }
         }
+        /* ===== CORRECCIONES RESPONSIVE PARA SUPER-ADMIN.HTML ===== */
+
+/* Agregar al final de tu sección <style> en super-admin.html */
+
+/* Evitar overflow horizontal */
+html, body {
+    width: 100%;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+/* Asegurar que todos los contenedores respeten el ancho */
+.nav, .main, .tabs-container {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* ===== NAVEGACIÓN MÓVIL PARA SUPER ADMIN ===== */
+
+/* Botón hamburguesa */
+.nav-toggle {
+    display: none;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--white);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+    font-size: 1.5rem;
+    min-width: 44px;
+    min-height: 44px;
+    z-index: 1002;
+}
+
+.nav-toggle:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.nav-toggle i {
+    pointer-events: none;
+    transition: transform 0.3s ease;
+}
+
+.nav-toggle[aria-expanded="true"] i {
+    transform: rotate(180deg);
+}
+
+/* Overlay para menú móvil */
+.nav-overlay {
+    position: fixed;
+    top: 70px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.nav-overlay.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+/* ===== RESPONSIVE MEJORADO ===== */
+
+/* Tablet Grande */
+@media (max-width: 1024px) {
+    .charts-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .tabs-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 0 1rem;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .main {
+        max-width: 100%;
+        padding: 2rem 1rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+    /* Header responsive */
+    .nav {
+        padding: 0 1rem;
+        position: relative;
+        flex-wrap: nowrap;
+    }
+    
+    .nav-toggle {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        order: 3;
+    }
+    
+    .logo {
+        order: 1;
+        font-size: 1.1rem;
+    }
+    
+    .user-section {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        flex-direction: column;
+        padding: 1rem;
+        gap: 1rem;
+        transform: translateY(-100%);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 1000;
+        max-height: calc(100vh - 70px);
+        overflow-y: auto;
+        order: 2;
+    }
+    
+    .user-section.active {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .user-info {
+        text-align: center;
+    }
+    
+    .user-avatar {
+        align-self: center;
+    }
+    
+    .logout-btn {
+        align-self: center;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+    }
+    
+    /* Tabs responsive */
+    .nav-tabs {
+        padding: 0;
+    }
+    
+    .tabs-container {
+        gap: 1rem;
+        padding: 0 1rem;
+    }
+    
+    .tab-button {
+        padding: 0.75rem 0;
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+    
+    /* Main content */
+    .main {
+        padding: 1rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .stat-card {
+        padding: 1rem;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+    }
+    
+    /* Tables responsive */
+    .table-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: stretch;
+    }
+    
+    .search-input {
+        width: 100%;
+    }
+    
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .table {
+        min-width: 600px;
+    }
+    
+    .table th,
+    .table td {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 0.25rem;
+        min-width: 120px;
+    }
+    
+    .action-buttons .btn-sm {
+        width: 100%;
+        justify-content: center;
+        font-size: 0.7rem;
+        padding: 0.4rem 0.6rem;
+    }
+    
+    /* Modals responsive */
+    .modal-content {
+        width: 95%;
+        margin: 1rem;
+        max-height: 90vh;
+    }
+    
+    .modal-body {
+        padding: 1rem;
+        max-height: 60vh;
+    }
+    
+    .modal-footer {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .modal-footer .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* Form responsive */
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .form-input,
+    .form-select,
+    .form-textarea {
+        font-size: 0.9rem;
+        padding: 0.6rem 0.8rem;
+    }
+    
+    /* Charts responsive */
+    .chart-container {
+        height: 300px;
+    }
+    
+    .chart-container.small {
+        height: 250px;
+    }
+}
+
+/* Móvil */
+@media (max-width: 480px) {
+    .nav {
+        padding: 0 0.5rem;
+        height: 60px;
+    }
+    
+    .logo {
+        font-size: 1rem;
+    }
+    
+    .crown-icon {
+        font-size: 1.2rem;
+    }
+    
+    .nav-toggle {
+        padding: 0.4rem;
+        font-size: 1.3rem;
+    }
+    
+    .user-section {
+        top: 60px;
+        padding: 0.75rem;
+    }
+    
+    .user-name {
+        font-size: 0.8rem;
+    }
+    
+    .user-role {
+        font-size: 0.7rem;
+    }
+    
+    .user-avatar {
+        width: 35px;
+        height: 35px;
+        font-size: 0.8rem;
+    }
+    
+    /* Tabs very small */
+    .tabs-container {
+        gap: 0.5rem;
+        padding: 0 0.5rem;
+    }
+    
+    .tab-button {
+        padding: 0.5rem 0;
+        font-size: 0.8rem;
+    }
+    
+    .tab-button i {
+        font-size: 0.9rem;
+    }
+    
+    /* Main content */
+    .main {
+        padding: 0.75rem 0.5rem;
+    }
+    
+    .page-title {
+        font-size: 1.5rem;
+    }
+    
+    .page-subtitle {
+        font-size: 1rem;
+    }
+    
+    /* Stats cards */
+    .stat-card {
+        padding: 0.75rem;
+    }
+    
+    .stat-header {
+        margin-bottom: 0.75rem;
+    }
+    
+    .stat-title {
+        font-size: 0.8rem;
+    }
+    
+    .stat-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 1.1rem;
+    }
+    
+    .stat-value {
+        font-size: 1.75rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .stat-change {
+        font-size: 0.7rem;
+    }
+    
+    /* Table very responsive */
+    .table-header {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+    
+    .table-title {
+        font-size: 1.1rem;
+        text-align: center;
+    }
+    
+    .table {
+        min-width: 500px;
+        font-size: 0.75rem;
+    }
+    
+    .table th,
+    .table td {
+        padding: 0.5rem 0.25rem;
+    }
+    
+    .badge {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.5rem;
+    }
+    
+    /* Modal very small */
+    .modal-content {
+        width: 98%;
+        margin: 0.25rem;
+        border-radius: 0.5rem;
+    }
+    
+    .modal-header {
+        padding: 1rem;
+    }
+    
+    .modal-title {
+        font-size: 1.2rem;
+    }
+    
+    .modal-body {
+        padding: 0.75rem;
+        max-height: 50vh;
+    }
+    
+    .modal-footer {
+        padding: 0.75rem;
+    }
+    
+    /* Form very small */
+    .form-input,
+    .form-select,
+    .form-textarea {
+        font-size: 0.8rem;
+        padding: 0.5rem;
+    }
+    
+    .form-label {
+        font-size: 0.8rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    /* Buttons */
+    .btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.8rem;
+    }
+    
+    .btn-sm {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.7rem;
+    }
+    
+    /* Charts very small */
+    .chart-container {
+        height: 250px;
+    }
+    
+    .chart-container.small {
+        height: 200px;
+    }
+    
+    /* Confirmation modal */
+    .confirmation-content {
+        width: 95%;
+        margin: 0.5rem;
+    }
+    
+    .confirmation-header {
+        padding: 1rem;
+    }
+    
+    .confirmation-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+    
+    .confirmation-title {
+        font-size: 1.2rem;
+    }
+    
+    .confirmation-message {
+        font-size: 0.9rem;
+    }
+    
+    .confirmation-body {
+        padding: 0 1rem;
+    }
+    
+    .confirmation-details {
+        padding: 0.75rem;
+        font-size: 0.8rem;
+    }
+    
+    .confirmation-footer {
+        padding: 1rem;
+        flex-direction: column;
+    }
+}
+
+/* Móvil muy pequeño */
+@media (max-width: 360px) {
+    .nav {
+        flex-direction: column;
+        height: auto;
+        padding: 0.5rem;
+        gap: 0.5rem;
+    }
+    
+    .user-section {
+        position: static;
+        transform: none;
+        opacity: 1;
+        visibility: visible;
+        background: none;
+        box-shadow: none;
+        padding: 0;
+        flex-direction: row;
+        justify-content: space-between;
+        order: 2;
+    }
+    
+    .nav-toggle {
+        order: 3;
+        align-self: center;
+    }
+    
+    .logo {
+        order: 1;
+        font-size: 0.9rem;
+    }
+    
+    .main {
+        padding: 0.5rem 0.25rem;
+    }
+    
+    .page-title {
+        font-size: 1.25rem;
+    }
+    
+    .page-subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .tabs-container {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 0.25rem;
+    }
+    
+    .tab-button {
+        flex-shrink: 0;
+        padding: 0.4rem 0.6rem;
+        font-size: 0.7rem;
+        min-width: 80px;
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+    }
+    
+    .table {
+        min-width: 450px;
+    }
+}
+
+/* Corregir notificaciones que pueden salirse */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    max-width: 400px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    border-left: 4px solid var(--primary);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    gap: 12px;
+    width: calc(100vw - 40px);
+    max-width: 400px;
+    box-sizing: border-box;
+}
+
+@media (max-width: 480px) {
+    .notification {
+        right: 10px;
+        top: 10px;
+        width: calc(100vw - 20px);
+        max-width: none;
+        padding: 12px;
+        font-size: 0.8rem;
+    }
+}
+
+/* Mejoras para dispositivos táctiles */
+@media (hover: none) and (pointer: coarse) {
+    .nav-toggle,
+    .btn,
+    .tab-button {
+        min-width: 44px;
+        min-height: 44px;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+    }
+    
+    .nav-toggle:active {
+        transform: scale(0.95);
+    }
+    
+    .btn:active {
+        transform: scale(0.98);
+    }
+    
+    .tab-button:active {
+        transform: scale(0.98);
+    }
+}
+
+/* Landscape mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+    .nav {
+        height: 50px;
+    }
+    
+    .user-section {
+        top: 50px;
+        padding: 0.5rem;
+    }
+    
+    .modal-content {
+        max-height: 85vh;
+    }
+    
+    .modal-body {
+        max-height: 40vh;
+    }
+}
+
+/* Prevenir elementos que causen overflow */
+.header,
+.nav-tabs {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Debugging (activar solo si hay problemas) */
+/*
+* {
+    outline: 1px solid red !important;
+}
+*/
     </style>
 </head>
 <body>
     <!-- Header -->
-    <header class="header">
-        <nav class="nav">
-            <a href="/super-admin.html" class="logo">
-                <i class="fas fa-crown crown-icon"></i>
-                Super Admin
-            </a>
-            
-            <div class="user-section">
-                <div class="user-info">
-                    <div class="user-name" id="user-name">Cargando...</div>
-                    <div class="user-role" id="user-role">super-admin</div>
-                </div>
-                <div class="user-avatar" id="user-avatar">
-                    <i class="fas fa-crown"></i>
-                </div>
-                <button class="logout-btn" id="logout-btn" title="Cerrar sesión">
-                    <i class="fas fa-sign-out-alt"></i>
-                </button>
+    <!-- ===== HEADER ACTUALIZADO CON NAVEGACIÓN MÓVIL ===== -->
+<header class="header">
+    <nav class="nav">
+        <a href="/super-admin.html" class="logo">
+            <i class="fas fa-crown crown-icon"></i>
+            Super Admin
+        </a>
+        
+        <!-- Botón hamburguesa (se crea automáticamente via JS) -->
+        
+        <div class="user-section">
+            <div class="user-info">
+                <div class="user-name" id="user-name">Cargando...</div>
+                <div class="user-role" id="user-role">super-admin</div>
             </div>
-        </nav>
-    </header>
+            <div class="user-avatar" id="user-avatar">
+                <i class="fas fa-crown"></i>
+            </div>
+            <button class="logout-btn" id="logout-btn" title="Cerrar sesión">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </div>
+    </nav>
+</header>
 
     <!-- Navigation Tabs -->
     <div class="nav-tabs">
@@ -904,10 +1570,10 @@
                 <i class="fas fa-store"></i>
                 Restaurantes
             </button>
-            <button class="tab-button" data-tab="stats">
+           <!-- <button class="tab-button" data-tab="stats">
                 <i class="fas fa-chart-line"></i>
                 Estadísticas
-            </button>
+            </button>-->
         </div>
     </div>
 
@@ -1261,6 +1927,317 @@
     </div>
 
     <script>
+        // ===== JAVASCRIPT PARA NAVEGACIÓN MÓVIL EN SUPER-ADMIN =====
+
+// Variables globales para el menú móvil
+let mobileMenuState = {
+    isOpen: false,
+    navToggle: null,
+    userSection: null,
+    overlay: null
+};
+
+// Función para configurar navegación móvil
+function setupMobileNavigation() {
+    console.log('🔧 Configurando navegación móvil super-admin...');
+    
+    // Crear botón hamburguesa si no existe
+    createMobileToggle();
+    
+    // Buscar elementos
+    const navToggle = document.getElementById('nav-toggle');
+    const userSection = document.querySelector('.user-section');
+    
+    if (!navToggle || !userSection) {
+        console.warn('⚠️ Elementos de navegación móvil no encontrados');
+        return;
+    }
+    
+    // Guardar referencias
+    mobileMenuState.navToggle = navToggle;
+    mobileMenuState.userSection = userSection;
+    
+    // Crear overlay
+    createOverlay();
+    
+    // Configurar eventos
+    setupMobileEvents();
+    
+    console.log('✅ Navegación móvil super-admin configurada');
+}
+
+// Crear botón hamburguesa
+function createMobileToggle() {
+    // Verificar si ya existe
+    if (document.getElementById('nav-toggle')) return;
+    
+    // Crear el botón
+    const toggleBtn = document.createElement('button');
+    toggleBtn.id = 'nav-toggle';
+    toggleBtn.className = 'nav-toggle';
+    toggleBtn.setAttribute('aria-label', 'Abrir menú');
+    toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+    
+    // Insertar en el nav
+    const nav = document.querySelector('.nav');
+    nav.appendChild(toggleBtn);
+}
+
+// Crear overlay
+function createOverlay() {
+    let overlay = document.querySelector('.nav-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'nav-overlay';
+        overlay.id = 'nav-overlay';
+        document.body.appendChild(overlay);
+    }
+    mobileMenuState.overlay = overlay;
+}
+
+// Configurar eventos móviles
+function setupMobileEvents() {
+    const { navToggle, userSection, overlay } = mobileMenuState;
+    
+    // Toggle del menú
+    navToggle.addEventListener('click', handleMobileToggle);
+    
+    // Cerrar al hacer click en overlay
+    if (overlay) {
+        overlay.addEventListener('click', closeMobileMenu);
+    }
+    
+    // Cerrar con Escape
+    document.addEventListener('keydown', handleMobileKeyDown);
+    
+    // Cerrar al redimensionar
+    window.addEventListener('resize', handleMobileResize);
+    
+    // Cerrar al hacer click en el botón logout
+    const logoutBtn = userSection.querySelector('#logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', closeMobileMenu);
+    }
+}
+
+// Manejar toggle del menú móvil
+function handleMobileToggle(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    console.log('🍔 Mobile toggle clicked, estado:', mobileMenuState.isOpen);
+    
+    if (mobileMenuState.isOpen) {
+        closeMobileMenu();
+    } else {
+        openMobileMenu();
+    }
+}
+
+// Abrir menú móvil
+function openMobileMenu() {
+    console.log('📂 Abriendo menú móvil...');
+    
+    mobileMenuState.isOpen = true;
+    
+    const { userSection, overlay } = mobileMenuState;
+    
+    // Agregar clases
+    userSection.classList.add('active');
+    if (overlay) {
+        overlay.classList.add('active');
+    }
+    
+    // Prevenir scroll
+    document.body.style.overflow = 'hidden';
+    
+    // Actualizar icono
+    updateMobileIcon();
+}
+
+// Cerrar menú móvil
+function closeMobileMenu() {
+    console.log('📁 Cerrando menú móvil...');
+    
+    mobileMenuState.isOpen = false;
+    
+    const { userSection, overlay } = mobileMenuState;
+    
+    // Remover clases
+    userSection.classList.remove('active');
+    if (overlay) {
+        overlay.classList.remove('active');
+    }
+    
+    // Restaurar scroll
+    document.body.style.overflow = '';
+    
+    // Actualizar icono
+    updateMobileIcon();
+}
+
+// Actualizar icono del toggle
+function updateMobileIcon() {
+    const { navToggle, isOpen } = mobileMenuState;
+    
+    const icon = navToggle.querySelector('i');
+    if (icon) {
+        if (isOpen) {
+            icon.className = 'fas fa-times';
+            navToggle.setAttribute('aria-label', 'Cerrar menú');
+            navToggle.setAttribute('aria-expanded', 'true');
+        } else {
+            icon.className = 'fas fa-bars';
+            navToggle.setAttribute('aria-label', 'Abrir menú');
+            navToggle.setAttribute('aria-expanded', 'false');
+        }
+    }
+}
+
+// Manejar teclas en móvil
+function handleMobileKeyDown(e) {
+    if (e.key === 'Escape' && mobileMenuState.isOpen) {
+        console.log('⌨️ Escape presionado en móvil');
+        closeMobileMenu();
+    }
+}
+
+// Manejar redimensionamiento
+function handleMobileResize() {
+    if (window.innerWidth > 768 && mobileMenuState.isOpen) {
+        console.log('📱 Ventana redimensionada, cerrando menú móvil');
+        closeMobileMenu();
+    }
+}
+
+// ===== FUNCIONES MEJORADAS PARA RESPONSIVE =====
+
+// Función mejorada para mostrar notificaciones (responsive)
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    
+    const icon = type === 'success' ? 'fa-check-circle' : 
+                type === 'error' ? 'fa-exclamation-circle' : 
+                type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle';
+    
+    notification.innerHTML = `
+        <i class="fas ${icon}"></i>
+        <span class="notification-message">${message}</span>
+        <button class="notification-close">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => notification.classList.add('show'), 100);
+    
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            if (document.body.contains(notification)) {
+                document.body.removeChild(notification);
+            }
+        }, 300);
+    }, 5000);
+    
+    notification.querySelector('.notification-close').onclick = () => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            if (document.body.contains(notification)) {
+                document.body.removeChild(notification);
+            }
+        }, 300);
+    };
+}
+
+// Función para redimensionar gráficos en responsive
+function resizeCharts() {
+    Object.values(charts).forEach(chart => {
+        if (chart && typeof chart.resize === 'function') {
+            chart.resize();
+        }
+    });
+}
+
+// Función para debug móvil
+function debugMobileMenu() {
+    console.log('🔍 DEBUG MENÚ MÓVIL SUPER-ADMIN:');
+    console.log('Estado:', mobileMenuState);
+    console.log('Ancho ventana:', window.innerWidth);
+    console.log('Toggle visible:', getComputedStyle(mobileMenuState.navToggle || document.getElementById('nav-toggle')).display);
+    console.log('User section activo:', document.querySelector('.user-section')?.classList.contains('active'));
+}
+
+// Hacer funciones disponibles globalmente
+window.debugMobileMenu = debugMobileMenu;
+
+// ===== MODIFICAR TU INICIALIZACIÓN EXISTENTE =====
+
+// Modificar tu función checkAuth existente para incluir navegación móvil
+const originalCheckAuth = checkAuth;
+checkAuth = async function() {
+    // Configurar navegación móvil PRIMERO
+    setupMobileNavigation();
+    
+    // Ejecutar tu checkAuth original
+    return await originalCheckAuth.call(this);
+};
+
+// Agregar listener para redimensionar gráficos
+window.addEventListener('resize', function() {
+    clearTimeout(window.resizeTimeout);
+    window.resizeTimeout = setTimeout(resizeCharts, 250);
+});
+
+// Mejorar funciones de modal para móvil
+function openCreateAdminModal() {
+    // Cerrar menú móvil si está abierto
+    if (mobileMenuState.isOpen) {
+        closeMobileMenu();
+    }
+    
+    document.getElementById('admin-modal-title').textContent = 'Nuevo Administrador';
+    document.getElementById('admin-form').reset();
+    document.getElementById('admin-id').value = '';
+    document.getElementById('password-group').style.display = 'block';
+    document.getElementById('admin-modal').classList.add('show');
+}
+
+function openCreateRestaurantModal() {
+    // Cerrar menú móvil si está abierto
+    if (mobileMenuState.isOpen) {
+        closeMobileMenu();
+    }
+    
+    document.getElementById('restaurant-form').reset();
+    loadAvailableAdmins();
+    toggleAdminSections();
+    document.getElementById('restaurant-modal').classList.add('show');
+}
+
+// Función para cerrar todos los modales al hacer click fuera
+document.addEventListener('click', function(e) {
+    // Si click es fuera de modales y menú móvil, cerrar todo
+    if (!e.target.closest('.modal-content') && 
+        !e.target.closest('.nav-toggle') && 
+        !e.target.closest('.user-section') &&
+        !e.target.closest('.btn')) {
+        
+        // Cerrar modales
+        document.querySelectorAll('.modal.show').forEach(modal => {
+            modal.classList.remove('show');
+        });
+        
+        // Cerrar confirmaciones
+        document.querySelectorAll('.confirmation-modal.show').forEach(modal => {
+            modal.classList.remove('show');
+        });
+    }
+});
+
+console.log('✅ Super Admin navegación móvil cargada');
         const API_BASE = window.location.origin + '/api';
         let currentUser = null;
         let charts = {};
