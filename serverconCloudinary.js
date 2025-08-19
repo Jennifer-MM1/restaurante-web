@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const mongoose = require('mongoose');
+const mongoose = require('mongoose'); // ← SOLO UNA VEZ AQUÍ
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const http = require('http');
@@ -140,40 +140,35 @@ adminSchema.methods.actualizarUltimoAcceso = function() {
 
 const Admin = mongoose.model('Admin', adminSchema);
 
-// Schema para imágenes CON CLOUDINARY - VERSIÓN FLEXIBLE
+// Schema para imágenes CON CLOUDINARY
+// ===== REEMPLAZA TU SCHEMA DE IMÁGENES CON ESTE =====
+// Busca en tu server.js donde defines imagenSchema y reemplázalo:
+
 const imagenSchema = new mongoose.Schema({
   filename: { 
     type: String, 
-    required: false,
-    trim: true,
-    default: function() {
-      return `cloudinary-${Date.now()}`;
-    }
+    required: false, // Cambiar a false porque Cloudinary puede no enviarlo
+    trim: true 
   },
   originalName: { 
     type: String, 
-    required: false,
-    trim: true,
-    default: 'imagen'
+    required: false, // Cambiar a false
+    trim: true 
   },
   url: { 
     type: String, 
-    required: true,
+    required: true, 
     trim: true 
   },
   cloudinaryId: { 
     type: String, 
-    required: false,
-    trim: true,
-    default: function() {
-      return `fallback-${Date.now()}`;
-    }
+    required: false, // Cambiar a false temporalmente
+    trim: true 
   },
   size: { 
     type: Number, 
-    required: false,
-    min: 0,
-    default: 0
+    required: false, // Cambiar a false
+    min: 0 
   },
   esPrincipal: { 
     type: Boolean, 
@@ -184,6 +179,198 @@ const imagenSchema = new mongoose.Schema({
     default: Date.now 
   }
 }, { _id: true });
+
+// ===== ACTUALIZAR LA RUTA DE UPLOAD DE IMÁGENES =====
+// Busca esta ruta en tu server.js y reemplázala:
+
+app.post('/api/restaurants/images/upload', verificarToken, upload.array('images', 10), async (req, res) => {
+  try {
+    console.log('🌩️ Iniciando upload a Cloudinary...');
+    console.log('📁 Archivos recibidos:', req.files?.length || 0);
+    
+    // Log para debug
+    if (req.files && req.files.length > 0) {
+      console.log('📄 Primer archivo:', {
+        filename: req.files[0].filename,
+        originalname: req.files[0].originalname,
+        path: req.files[0].path,
+        public_id: req.files[0].public_id,
+        size: req.files[0].size
+      });
+    }
+
+    const restaurant = await Restaurant.findOne({ 
+      adminId: req.admin._id, 
+      activo: true 
+    });
+
+    if (!restaurant) {
+      if (req.files) {
+        for (const file of req.files) {
+          try {
+            await cloudinary.uploader.destroy(file.public_id);
+          } catch (error) {
+            console.error('Error limpiando Cloudinary:', error);
+          }
+        }
+      }
+      
+      return res.status(404).json({
+        success: false,
+        message: 'No se encontró restaurante asociado'
+      });
+    }
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No se recibieron archivos'
+      });
+    }
+
+    // Procesar las imágenes con manejo de errores
+    const nuevasImagenes = req.files.map(file => {
+      return {
+        filename: file.filename || `cloudinary-${Date.now()}`,
+        originalName: file.originalname || 'image',
+        url: file.path || file.secure_url, // Cloudinary puede usar secure_url
+        cloudinaryId: file.public_id || `fallback-${Date.now()}`,
+        size: file.size || 0,
+        fechaSubida: new Date(),
+        esPrincipal: false
+      };
+    });
+
+    console.log('📊 Imágenes procesadas:', nuevasImagenes.length);
+    console.log('🔍 Primera imagen procesada:', nuevasImagenes[0]);
+
+    if (!restaurant.imagenes) {
+      restaurant.imagenes = [];
+    }
+
+    restaurant.imagenes.push(...nuevasImagenes);
+    
+    if (restaurant.imagenes.length === nuevasImagenes.length) {
+      restaurant.imagenes[0].esPrincipal = true;
+    }
+
+    restaurant.fechaActualizacion = new Date();
+    
+    try {
+      await restaurant.save();
+      console.log('✅ Restaurante guardado exitosamente');
+    } catch (saveError) {
+      console.error('❌ Error guardando en BD:', saveError);
+      throw saveError;
+    }
+
+    res.json({
+      success: true,
+      message: `${nuevasImagenes.length} imagen(es) subida(s) correctamente`,
+      data: {
+        imagenesSubidas: nuevasImagenes.length,
+        totalImagenes: restaurant.imagenes.length,
+        storage: 'Cloudinary',
+        imagenes: nuevasImagenes.map((img, index) => ({
+          id: img._id || `temp-${index}`,
+          filename: img.filename,
+          originalName: img.originalName,
+          url: img.url,
+          cloudinaryId: img.cloudinaryId,
+          size: img.size,
+          esPrincipal: img.esPrincipal
+        }))
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Error subiendo imágenes a Cloudinary:', error);
+    console.error('📄 Stack trace:', error.stack);
+    
+    if (req.files) {
+      for (const file of req.files) {
+        try {
+          await cloudinary.uploader.destroy(file.public_id);
+        } catch (cleanupError) {
+          console.error('Error en limpieza:', cleanupError);
+        }
+      }
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Error del servidor al subir imágenes',
+      error: error.message,
+      details: error.name === 'ValidationError' ? Object.keys(error.errors) : undefined
+    });
+  }
+});
+
+// ===== AGREGAR RUTA DE STATS ANTES DE LA RUTA CON PARÁMETRO =====
+// Busca la línea que dice "// GET /api/restaurants/:id" y ANTES de esa línea, agrega:
+
+// GET /api/restaurants/stats - Estadísticas de restaurantes (DEBE IR ANTES que /:id)
+app.get('/api/restaurants/stats', async (req, res) => {
+  try {
+    const stats = await Restaurant.aggregate([
+      { $match: { activo: true } },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+          porTipo: {
+            $push: {
+              tipo: '$tipo',
+              count: 1
+            }
+          }
+        }
+      }
+    ]);
+
+    const tipoStats = await Restaurant.aggregate([
+      { $match: { activo: true } },
+      {
+        $group: {
+          _id: '$tipo',
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        total: stats[0]?.total || 0,
+        porTipo: tipoStats
+      }
+    });
+
+  } catch (error) {
+    console.error('Error obteniendo estadísticas:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+});
+
+// ===== ASEGURAR ORDEN CORRECTO DE RUTAS =====
+// Las rutas específicas SIEMPRE deben ir ANTES que las rutas con parámetros
+
+/*
+ORDEN CORRECTO (ejemplo):
+1. GET /api/restaurants/stats           ← Específica
+2. GET /api/restaurants/images          ← Específica  
+3. GET /api/restaurants/my-restaurant   ← Específica
+4. GET /api/restaurants/:id             ← Con parámetro (AL FINAL)
+
+ORDEN INCORRECTO (causa el error):
+1. GET /api/restaurants/:id             ← Intercepta "stats"
+2. GET /api/restaurants/stats           ← Nunca se ejecuta
+*/
+
+console.log('✅ Fix para rutas y schema aplicado');
 
 // Schema simplificado de Restaurant
 const restaurantSchema = new mongoose.Schema({
@@ -206,7 +393,7 @@ const restaurantSchema = new mongoose.Schema({
 
 const Restaurant = mongoose.model('Restaurant', restaurantSchema);
 
-// ===== FUNCIONES DE AUTH (DEFINIR ANTES DE USAR) =====
+// ===== FUNCIONES DE AUTH =====
 const generarToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'mi_secreto_jwt_super_seguro_2024', {
     expiresIn: '7d'
@@ -260,10 +447,6 @@ const verificarToken = async (req, res, next) => {
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
 app.get('/test', (req, res) => {
@@ -369,305 +552,8 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-// ===== AHORA SÍ PUEDES USAR verificarToken EN LAS RUTAS =====
+// ===== RUTAS DE IMÁGENES CON CLOUDINARY =====
 
-// 📤 Subir nuevas imágenes a Cloudinary
-app.post('/api/restaurants/images/upload', verificarToken, upload.array('images', 10), async (req, res) => {
-  try {
-    console.log('🌩️ Iniciando upload a Cloudinary...');
-    console.log('📁 Archivos recibidos:', req.files?.length || 0);
-
-    const restaurant = await Restaurant.findOne({ 
-      adminId: req.admin._id, 
-      activo: true 
-    });
-
-    if (!restaurant) {
-      return res.status(404).json({
-        success: false,
-        message: 'No se encontró restaurante asociado'
-      });
-    }
-
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'No se recibieron archivos'
-      });
-    }
-
-    console.log(`📷 Procesando ${req.files.length} imagen(es)...`);
-
-    // Procesar imágenes
-    const nuevasImagenes = req.files.map((file, index) => ({
-      filename: file.filename || `cloudinary-${Date.now()}-${index}`,
-      originalName: file.originalname || `imagen-${index}`,
-      url: file.path || file.secure_url,
-      cloudinaryId: file.public_id || `fallback-${Date.now()}-${index}`,
-      size: file.size || file.bytes || 0,
-      fechaSubida: new Date(),
-      esPrincipal: false
-    }));
-
-    if (!restaurant.imagenes) {
-      restaurant.imagenes = [];
-    }
-
-    restaurant.imagenes.push(...nuevasImagenes);
-    
-    if (restaurant.imagenes.length === nuevasImagenes.length) {
-      restaurant.imagenes[0].esPrincipal = true;
-    }
-
-    restaurant.fechaActualizacion = new Date();
-    await restaurant.save();
-
-    console.log(`✅ ${nuevasImagenes.length} imagen(es) guardadas`);
-
-    res.json({
-      success: true,
-      message: `${nuevasImagenes.length} imagen(es) subida(s) correctamente`,
-      data: {
-        imagenesSubidas: nuevasImagenes.length,
-        totalImagenes: restaurant.imagenes.length,
-        storage: 'Cloudinary'
-      }
-    });
-
-  } catch (error) {
-    console.error('❌ Error subiendo imágenes:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error del servidor al subir imágenes',
-      error: error.message
-    });
-  }
-});
-// ========================================================= INICIO DE APIS-RUTAS =============================================================
-// ===== AGREGAR ESTAS RUTAS DESPUÉS DE LAS RUTAS DE IMÁGENES =====
-// Y ANTES de cualquier ruta que tenga /:id
-
-// GET /api/restaurants/stats - DEBE IR ANTES que /:id
-app.get('/api/restaurants/stats', async (req, res) => {
-  try {
-    const stats = await Restaurant.aggregate([
-      { $match: { activo: true } },
-      {
-        $group: {
-          _id: null,
-          total: { $sum: 1 },
-          porTipo: {
-            $push: {
-              tipo: '$tipo',
-              count: 1
-            }
-          }
-        }
-      }
-    ]);
-
-    const tipoStats = await Restaurant.aggregate([
-      { $match: { activo: true } },
-      {
-        $group: {
-          _id: '$tipo',
-          count: { $sum: 1 }
-        }
-      }
-    ]);
-
-    res.json({
-      success: true,
-      data: {
-        total: stats[0]?.total || 0,
-        porTipo: tipoStats
-      }
-    });
-
-  } catch (error) {
-    console.error('Error obteniendo estadísticas:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error interno del servidor'
-    });
-  }
-});
-
-// GET /api/restaurants/my-restaurant - ESPECÍFICA
-app.get('/api/restaurants/my-restaurant', verificarToken, async (req, res) => {
-  try {
-    console.log('🔍 Buscando restaurante para admin:', req.admin._id);
-    
-    const restaurant = await Restaurant.findOne({ 
-      adminId: req.admin._id, 
-      activo: true 
-    }).populate('adminId', 'nombre apellido email telefono');
-    
-    if (!restaurant) {
-      return res.status(404).json({
-        success: false,
-        message: 'No se encontró establecimiento asociado a este administrador'
-      });
-    }
-    
-    console.log('✅ Restaurante encontrado:', restaurant.nombre);
-    
-    res.json({
-      success: true,
-      data: restaurant
-    });
-    
-  } catch (error) {
-    console.error('❌ Error obteniendo restaurante:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error del servidor al obtener establecimiento',
-      error: error.message
-    });
-  }
-});
-
-// GET /api/restaurants - Obtener todos los restaurantes (público)
-app.get('/api/restaurants', async (req, res) => {
-  try {
-    const { 
-      pagina = 1, 
-      limite = 12, 
-      tipo, 
-      ciudad, 
-      buscar,
-      ordenar = 'fechaCreacion',
-      direccion = 'desc'
-    } = req.query;
-
-    const filtros = { activo: true };
-    
-    if (tipo && ['restaurante', 'bar', 'cafeteria'].includes(tipo)) {
-      filtros.tipo = tipo;
-    }
-    
-    if (ciudad) {
-      filtros['direccion.ciudad'] = { $regex: ciudad, $options: 'i' };
-    }
-    
-    if (buscar) {
-      filtros.$or = [
-        { nombre: { $regex: buscar, $options: 'i' } },
-        { descripcion: { $regex: buscar, $options: 'i' } }
-      ];
-    }
-
-    const sortOptions = {};
-    sortOptions[ordenar] = direccion === 'desc' ? -1 : 1;
-
-    const skip = (parseInt(pagina) - 1) * parseInt(limite);
-
-    const [restaurantes, total] = await Promise.all([
-      Restaurant.find(filtros)
-        .populate('adminId', 'nombre apellido email telefono')
-        .sort(sortOptions)
-        .skip(skip)
-        .limit(parseInt(limite))
-        .lean(),
-      Restaurant.countDocuments(filtros)
-    ]);
-
-    const estadisticas = await Restaurant.aggregate([
-      { $match: { activo: true } },
-      { $group: { _id: '$tipo', count: { $sum: 1 } } }
-    ]);
-
-    const totalPaginas = Math.ceil(total / parseInt(limite));
-
-    // Procesar restaurantes con información adicional
-    const restaurantesConInfo = restaurantes.map(restaurant => ({
-      id: restaurant._id,
-      nombre: restaurant.nombre,
-      tipo: restaurant.tipo,
-      descripcion: restaurant.descripcion,
-      direccion: restaurant.direccion,
-      telefono: restaurant.telefono,
-      email: restaurant.email,
-      imagenes: restaurant.imagenes || [],
-      admin: restaurant.adminId,
-      fechaCreacion: restaurant.fechaCreacion,
-      fechaActualizacion: restaurant.fechaActualizacion
-    }));
-
-    res.json({
-      success: true,
-      message: 'Restaurantes obtenidos exitosamente',
-      data: {
-        restaurantes: restaurantesConInfo,
-        pagination: {
-          total,
-          pagina: parseInt(pagina),
-          limite: parseInt(limite),
-          totalPaginas,
-          hasNext: parseInt(pagina) < totalPaginas,
-          hasPrev: parseInt(pagina) > 1
-        },
-        filtros: { tipo, ciudad, buscar, ordenar, direccion },
-        estadisticas: estadisticas.reduce((acc, stat) => {
-          acc[stat._id] = stat.count;
-          return acc;
-        }, {})
-      }
-    });
-
-  } catch (error) {
-    console.error('Error obteniendo restaurantes:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error interno del servidor'
-    });
-  }
-});
-
-// ===== IMPORTANTE: RUTAS CON PARÁMETROS AL FINAL =====
-// GET /api/restaurants/:id - ESTA DEBE IR AL FINAL
-app.get('/api/restaurants/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    // Validar que el ID sea un ObjectId válido
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({
-        success: false,
-        message: 'ID de restaurante no válido'
-      });
-    }
-
-    const restaurant = await Restaurant.findOne({ 
-      _id: id, 
-      activo: true 
-    }).populate('adminId', 'nombre apellido email telefono');
-
-    if (!restaurant) {
-      return res.status(404).json({
-        success: false,
-        message: 'Restaurante no encontrado'
-      });
-    }
-
-    res.json({
-      success: true,
-      message: 'Restaurante obtenido exitosamente',
-      data: { restaurant }
-    });
-
-  } catch (error) {
-    console.error('Error obteniendo restaurante:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error interno del servidor'
-    });
-  }
-});
-
-console.log('✅ Rutas ordenadas correctamente - stats antes que :id');
-
-// ===== RESTO DE RUTAS CON verificarToken =====
 app.get('/api/restaurants/images', verificarToken, async (req, res) => {
   try {
     const restaurant = await Restaurant.findOne({ 
@@ -686,7 +572,16 @@ app.get('/api/restaurants/images', verificarToken, async (req, res) => {
 
     res.json({
       success: true,
-      data: imagenes,
+      data: imagenes.map(imagen => ({
+        id: imagen._id,
+        filename: imagen.filename,
+        originalName: imagen.originalName,
+        url: imagen.url,
+        cloudinaryId: imagen.cloudinaryId,
+        size: imagen.size,
+        esPrincipal: imagen.esPrincipal,
+        fechaSubida: imagen.fechaSubida
+      })),
       total: imagenes.length,
       storage: 'Cloudinary'
     });
@@ -1171,7 +1066,6 @@ app.get('/api/restaurants', async (req, res) => {
     });
   }
 });
-
 
 // GET /api/restaurants/:id - Obtener restaurante específico (público)
 app.get('/api/restaurants/:id', async (req, res) => {
@@ -2869,7 +2763,7 @@ app.get('/admin', (req, res) => {
 });
 
 console.log('✅ Rutas de Super Admin - Parte 2 (Completas) agregadas');
-// ========================================================= FIN DE APIS-RUTAS =============================================================
+
 console.log('✅ Rutas de setup, menú y horarios agregadas');
 // ===== MANEJO DE ERRORES =====
 app.use('*', (req, res) => {
