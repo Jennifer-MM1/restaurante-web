@@ -2527,16 +2527,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
             init() {
                 this.setupEventListeners();
-                this.connectWebSocket();
+               // this.connectWebSocket();//
                 this.loadEstablishments();
                 this.loadStats();
             }
 
             // ===== WEBSOCKET =====
-            connectWebSocket() {
+             /*   connectWebSocket() {
                 const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
                 const wsUrl = `${protocol}//${window.location.host}`;
-                
+            
                 try {
                     this.ws = new WebSocket(wsUrl);
                     
@@ -2574,7 +2574,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.error('Error conectando WebSocket:', error);
                     this.updateConnectionStatus(false);
                 }
-            }
+            }*/
 
             handleWebSocketMessage(data) {
                 switch (data.type) {
@@ -2628,7 +2628,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
 
-            updateConnectionStatus(connected) {
+            /*updateConnectionStatus(connected) {
                 const indicator = document.getElementById('connection-indicator');
                 const status = document.getElementById('connection-status');
                 
@@ -2639,7 +2639,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     indicator.classList.remove('connected');
                     status.textContent = 'Desconectado';
                 }
-            }
+            }*/
 
             showNotification(title, message, type = 'new') {
                 const container = document.getElementById('realtime-notifications');
@@ -2834,17 +2834,21 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             async loadStats() {
-                try {
-                    const response = await fetch('/api/restaurants/stats');
-                    const data = await response.json();
-
-                    if (data.success) {
-                        this.updateStats(data.data.general);
-                    }
-                } catch (error) {
-                    console.error('Error cargando estadísticas:', error);
-                }
-            }
+    try {
+        const response = await fetch(`${this.API_BASE}/restaurants/stats`);
+        const data = await response.json();
+        
+        // AGREGA ESTA VALIDACIÓN:
+        if (data.success && data.data) {
+            this.updateStats(data.data);
+        } else {
+            console.warn('⚠️ Stats data not available:', data);
+        }
+    } catch (error) {
+        console.error('Error cargando estadísticas:', error);
+        // NO llames updateStats si hay error
+    }
+}
 
             // ===== RENDERIZADO =====
             renderEstablishments() {

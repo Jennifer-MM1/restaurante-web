@@ -1047,7 +1047,7 @@ app.patch('/api/restaurants/my-restaurant', verificarToken, async (req, res) => 
 });
 
 
-
+/*
 // ===== CONFIGURACIÓN DE MULTER PARA IMÁGENES =====
 const multer = require('multer');
 const fs = require('fs');
@@ -1843,7 +1843,7 @@ app.get('/api/admin/my-restaurants', verificarToken, async (req, res) => {
 
 
 
-// ===== RUTAS DE SUPER ADMIN =====
+// ============================================================ RUTAS DE SUPER ADMIN ============================================================
 
 // Ruta para panel de super admin
 app.get('/super-admin', (req, res) => {

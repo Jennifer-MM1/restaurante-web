@@ -758,30 +758,44 @@
         }
 
         // Cargar imágenes
-        async function loadImages() {
-            const token = localStorage.getItem('authToken');
-            if (!token) return;
+        // Cargar imágenes - VERSIÓN MEJORADA CON DEBUG
+async function loadImages() {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        console.error('❌ No hay token de autenticación');
+        return;
+    }
 
-            try {
-                const response = await fetch(`${API_BASE}/restaurants/images`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    images = data.data || [];
-                    displayImages();
-                } else {
-                    throw new Error('Error cargando imágenes');
-                }
-            } catch (error) {
-                console.error('Error cargando imágenes:', error);
-                showNotification('Error cargando imágenes', 'error');
-                showEmptyState();
+    try {
+        console.log('🔄 Cargando imágenes...');
+        
+        const response = await fetch(`${API_BASE}/restaurants/images`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
             }
+        });
+
+        console.log('📡 Response status:', response.status);
+        console.log('📡 Response headers:', response.headers);
+
+        const data = await response.json();
+        console.log('📋 Data recibida:', data);
+
+        if (response.ok && data.success) {
+            images = data.data || [];
+            console.log('✅ Imágenes cargadas:', images.length);
+            displayImages();
+        } else {
+            console.error('❌ Error del servidor:', data);
+            throw new Error(data.message || `Error HTTP ${response.status}: ${response.statusText}`);
         }
+    } catch (error) {
+        console.error('❌ Error completo cargando imágenes:', error);
+        showNotification(`Error cargando imágenes: ${error.message}`, 'error');
+        showEmptyState();
+    }
+}
 
         // Mostrar imágenes
         function displayImages() {

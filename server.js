@@ -62,6 +62,9 @@ const upload = multer({
   }
 });
 
+
+
+
 const app = express();
 const PORT = process.env.PORT || 3003;
 
@@ -95,6 +98,7 @@ const connectDB = async () => {
     console.log('⚠️  Continuando sin base de datos para desarrollo...');
   }
 };
+
 
 // Conectar a MongoDB
 connectDB();
@@ -139,6 +143,40 @@ adminSchema.methods.actualizarUltimoAcceso = function() {
 };
 
 const Admin = mongoose.model('Admin', adminSchema);
+
+// ===== AGREGAR ESTOS SCHEMAS DESPUÉS DEL Admin =====
+
+// Schema para elementos del menú
+const menuItemSchema = new mongoose.Schema({
+  nombre: { type: String, required: true, trim: true },
+  descripcion: { type: String, trim: true },
+  precio: { type: Number, required: true, min: 0 }
+}, { _id: true });
+
+// Schema para categorías del menú
+const menuCategorySchema = new mongoose.Schema({
+  categoria: { type: String, required: true, trim: true },
+  items: [menuItemSchema]
+}, { _id: true });
+
+// Schema para horarios
+const horariosSchema = new mongoose.Schema({
+  lunes: { abierto: { type: Boolean, default: true }, apertura: { type: String, default: '09:00' }, cierre: { type: String, default: '22:00' } },
+  martes: { abierto: { type: Boolean, default: true }, apertura: { type: String, default: '09:00' }, cierre: { type: String, default: '22:00' } },
+  miercoles: { abierto: { type: Boolean, default: true }, apertura: { type: String, default: '09:00' }, cierre: { type: String, default: '22:00' } },
+  jueves: { abierto: { type: Boolean, default: true }, apertura: { type: String, default: '09:00' }, cierre: { type: String, default: '22:00' } },
+  viernes: { abierto: { type: Boolean, default: true }, apertura: { type: String, default: '09:00' }, cierre: { type: String, default: '22:00' } },
+  sabado: { abierto: { type: Boolean, default: true }, apertura: { type: String, default: '09:00' }, cierre: { type: String, default: '22:00' } },
+  domingo: { abierto: { type: Boolean, default: false }, apertura: { type: String, default: '09:00' }, cierre: { type: String, default: '22:00' } }
+}, { _id: false });
+
+// Schema para redes sociales
+const redesSchema = new mongoose.Schema({
+  facebook: { type: String, trim: true },
+  instagram: { type: String, trim: true },
+  twitter: { type: String, trim: true },
+  website: { type: String, trim: true }
+}, { _id: false });
 
 // Schema para imágenes CON CLOUDINARY - VERSIÓN FLEXIBLE
 const imagenSchema = new mongoose.Schema({
@@ -197,7 +235,30 @@ const restaurantSchema = new mongoose.Schema({
     ciudad: { type: String, required: true, trim: true },
     codigoPostal: { type: String, required: true, trim: true }
   },
-  imagenes: [imagenSchema], // ← CON CLOUDINARY
+  imagenes: {
+    type: [imagenSchema], 
+    default: []
+  },
+  horarios: {                    // ← NUEVO
+    type: horariosSchema,        // ← NUEVO
+    default: () => ({            // ← NUEVO
+      lunes: { abierto: true, apertura: '09:00', cierre: '22:00' },
+      martes: { abierto: true, apertura: '09:00', cierre: '22:00' },
+      miercoles: { abierto: true, apertura: '09:00', cierre: '22:00' },
+      jueves: { abierto: true, apertura: '09:00', cierre: '22:00' },
+      viernes: { abierto: true, apertura: '09:00', cierre: '22:00' },
+      sabado: { abierto: true, apertura: '09:00', cierre: '22:00' },
+      domingo: { abierto: false, apertura: '09:00', cierre: '22:00' }
+    })
+  },                             // ← NUEVO
+  menu: {                        // ← NUEVO
+    type: [menuCategorySchema],  // ← NUEVO
+    default: []                  // ← NUEVO
+  },                             // ← NUEVO
+  redes: {                       // ← NUEVO
+    type: redesSchema,           // ← NUEVO
+    default: () => ({})          // ← NUEVO
+  },                             // ← NUEVO
   adminId: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin', required: true },
   activo: { type: Boolean, default: true },
   fechaCreacion: { type: Date, default: Date.now },
@@ -443,6 +504,81 @@ app.post('/api/restaurants/images/upload', verificarToken, upload.array('images'
     });
   }
 });
+
+// 🗑️ Eliminar imagen específica
+app.delete('/api/restaurants/images/:imageId', verificarToken, async (req, res) => {
+  try {
+    const { imageId } = req.params;
+    const restaurant = await Restaurant.findOne({ adminId: req.admin._id, activo: true });
+
+    if (!restaurant) {
+      return res.status(404).json({ success: false, message: 'No se encontró restaurante asociado' });
+    }
+
+    const imagenIndex = restaurant.imagenes.findIndex(img => img._id.toString() === imageId);
+    if (imagenIndex === -1) {
+      return res.status(404).json({ success: false, message: 'Imagen no encontrada' });
+    }
+
+    const imagenAEliminar = restaurant.imagenes[imagenIndex];
+    
+    // Eliminar de Cloudinary
+    if (imagenAEliminar.cloudinaryId) {
+      try {
+        await cloudinary.uploader.destroy(imagenAEliminar.cloudinaryId);
+      } catch (error) {
+        console.error('Error eliminando de Cloudinary:', error);
+      }
+    }
+
+    restaurant.imagenes.splice(imagenIndex, 1);
+    restaurant.fechaActualizacion = new Date();
+    await restaurant.save();
+
+    res.json({
+      success: true,
+      message: 'Imagen eliminada exitosamente',
+      data: { totalImagenes: restaurant.imagenes.length }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error del servidor al eliminar imagen' });
+  }
+});
+
+// ⭐ Establecer imagen como principal
+app.patch('/api/restaurants/images/:imageId/set-main', verificarToken, async (req, res) => {
+  try {
+    const { imageId } = req.params;
+    const restaurant = await Restaurant.findOne({ adminId: req.admin._id, activo: true });
+
+    if (!restaurant) {
+      return res.status(404).json({ success: false, message: 'No se encontró restaurante asociado' });
+    }
+
+    const imagenIndex = restaurant.imagenes.findIndex(img => img._id.toString() === imageId);
+    if (imagenIndex === -1) {
+      return res.status(404).json({ success: false, message: 'Imagen no encontrada' });
+    }
+
+    if (imagenIndex === 0) {
+      return res.json({ success: true, message: 'Esta imagen ya es la principal' });
+    }
+
+    // Mover imagen al primer lugar
+    const imagenPrincipal = restaurant.imagenes.splice(imagenIndex, 1)[0];
+    restaurant.imagenes.unshift(imagenPrincipal);
+    restaurant.fechaActualizacion = new Date();
+    await restaurant.save();
+
+    res.json({
+      success: true,
+      message: 'Imagen principal actualizada exitosamente',
+      data: { totalImagenes: restaurant.imagenes.length }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error del servidor' });
+  }
+});
 // ========================================================= INICIO DE APIS-RUTAS =============================================================
 // ===== AGREGAR ESTAS RUTAS DESPUÉS DE LAS RUTAS DE IMÁGENES =====
 // Y ANTES de cualquier ruta que tenga /:id
@@ -455,7 +591,7 @@ app.get('/api/restaurants/stats', async (req, res) => {
       {
         $group: {
           _id: null,
-          total: { $sum: 1 },
+          totalRestaurantes: { $sum: 1 }, // ⭐ IMPORTANTE: esta línea
           porTipo: {
             $push: {
               tipo: '$tipo',
@@ -479,7 +615,8 @@ app.get('/api/restaurants/stats', async (req, res) => {
     res.json({
       success: true,
       data: {
-        total: stats[0]?.total || 0,
+        totalRestaurantes: stats[0]?.totalRestaurantes || 0, // ⭐ AQUÍ
+        total: stats[0]?.totalRestaurantes || 0,
         porTipo: tipoStats
       }
     });
@@ -492,7 +629,6 @@ app.get('/api/restaurants/stats', async (req, res) => {
     });
   }
 });
-
 // GET /api/restaurants/my-restaurant - ESPECÍFICA
 app.get('/api/restaurants/my-restaurant', verificarToken, async (req, res) => {
   try {
@@ -624,48 +760,7 @@ app.get('/api/restaurants', async (req, res) => {
   }
 });
 
-// ===== IMPORTANTE: RUTAS CON PARÁMETROS AL FINAL =====
-// GET /api/restaurants/:id - ESTA DEBE IR AL FINAL
-app.get('/api/restaurants/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
 
-    // Validar que el ID sea un ObjectId válido
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({
-        success: false,
-        message: 'ID de restaurante no válido'
-      });
-    }
-
-    const restaurant = await Restaurant.findOne({ 
-      _id: id, 
-      activo: true 
-    }).populate('adminId', 'nombre apellido email telefono');
-
-    if (!restaurant) {
-      return res.status(404).json({
-        success: false,
-        message: 'Restaurante no encontrado'
-      });
-    }
-
-    res.json({
-      success: true,
-      message: 'Restaurante obtenido exitosamente',
-      data: { restaurant }
-    });
-
-  } catch (error) {
-    console.error('Error obteniendo restaurante:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error interno del servidor'
-    });
-  }
-});
-
-console.log('✅ Rutas ordenadas correctamente - stats antes que :id');
 
 // ===== RESTO DE RUTAS CON verificarToken =====
 app.get('/api/restaurants/images', verificarToken, async (req, res) => {
@@ -699,6 +794,8 @@ app.get('/api/restaurants/images', verificarToken, async (req, res) => {
     });
   }
 });
+
+
 
 // 📤 Subir nuevas imágenes a Cloudinary - VERSIÓN CORREGIDA
 app.post('/api/restaurants/images/upload', verificarToken, upload.array('images', 10), async (req, res) => {
@@ -1377,7 +1474,161 @@ app.get('/setup', async (req, res) => {
 
 // ===== RUTAS DE ACTUALIZACIÓN DE RESTAURANTE =====
 
-// PATCH /api/restaurants/my-restaurant/schedule - Actualizar horarios
+// GET /api/admin/my-restaurant (ruta adicional del segundo archivo)
+app.get('/api/admin/my-restaurant', verificarToken, async (req, res) => {
+  try {
+    console.log('🔍 Buscando restaurante para admin:', req.admin._id);
+    
+    const restaurant = await Restaurant.findOne({ 
+      adminId: req.admin._id,
+      activo: true 
+    }).populate('adminId', 'nombre apellido email telefono');
+    
+    if (!restaurant) {
+      return res.status(404).json({
+        success: false,
+        message: 'No se encontró restaurante asociado a este administrador'
+      });
+    }
+    
+    console.log('✅ Restaurante encontrado:', restaurant.nombre);
+    
+    res.json({
+      success: true,
+      message: 'Restaurante obtenido exitosamente',
+      data: restaurant
+    });
+    
+  } catch (error) {
+    console.error('❌ Error obteniendo mi restaurante:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error del servidor al obtener restaurante',
+      error: error.message
+    });
+  }
+});
+
+// Actualizar información básica
+app.patch('/api/restaurants/my-restaurant/basic-info', verificarToken, async (req, res) => {
+  try {
+    const { nombre, descripcion, telefono, email } = req.body;
+    
+    // Validar campos requeridos
+    if (!nombre || !descripcion || !telefono || !email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Todos los campos son requeridos'
+      });
+    }
+    
+    const restaurant = await Restaurant.findOneAndUpdate(
+      { adminId: req.admin._id, activo: true },
+      {
+        nombre: nombre.trim(),
+        descripcion: descripcion.trim(),
+        telefono: telefono.trim(),
+        email: email.toLowerCase().trim(),
+        fechaActualizacion: new Date()
+      },
+      { new: true, runValidators: true }
+    ).populate('adminId', 'nombre apellido email telefono');
+    
+    if (!restaurant) {
+      return res.status(404).json({
+        success: false,
+        message: 'Establecimiento no encontrado'
+      });
+    }
+    
+    console.log('✅ Información básica actualizada:', restaurant.nombre);
+    
+    // Notificar actualización via WebSocket si está disponible
+    if (global.wsServer) {
+      global.wsServer.notifyUpdatedRestaurant(restaurant, { tipo: 'información básica' });
+    }
+    
+    res.json({
+      success: true,
+      message: 'Información básica actualizada exitosamente',
+      data: restaurant
+    });
+    
+  } catch (error) {
+    console.error('❌ Error actualizando información básica:', error);
+    
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Error de validación',
+        errors: Object.values(error.errors).map(err => err.message)
+      });
+    }
+    
+    res.status(500).json({
+      success: false,
+      message: 'Error del servidor',
+      error: error.message
+    });
+  }
+});
+
+// Actualizar dirección
+app.patch('/api/restaurants/my-restaurant/address', verificarToken, async (req, res) => {
+  try {
+    const { direccion } = req.body;
+    
+    if (!direccion || !direccion.calle || !direccion.ciudad || !direccion.codigoPostal) {
+      return res.status(400).json({
+        success: false,
+        message: 'Todos los campos de dirección son requeridos'
+      });
+    }
+    
+    const restaurant = await Restaurant.findOneAndUpdate(
+      { adminId: req.admin._id, activo: true },
+      {
+        direccion: {
+          calle: direccion.calle.trim(),
+          ciudad: direccion.ciudad.trim(),
+          codigoPostal: direccion.codigoPostal.trim()
+        },
+        fechaActualizacion: new Date()
+      },
+      { new: true, runValidators: true }
+    ).populate('adminId', 'nombre apellido email telefono');
+    
+    if (!restaurant) {
+      return res.status(404).json({
+        success: false,
+        message: 'Establecimiento no encontrado'
+      });
+    }
+    
+    console.log('✅ Dirección actualizada:', restaurant.nombre);
+    
+    // Notificar actualización via WebSocket si está disponible
+    if (global.wsServer) {
+      global.wsServer.notifyUpdatedRestaurant(restaurant, { tipo: 'dirección' });
+    }
+    
+    res.json({
+      success: true,
+      message: 'Dirección actualizada exitosamente',
+      data: restaurant
+    });
+    
+  } catch (error) {
+    console.error('❌ Error actualizando dirección:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error del servidor',
+      error: error.message
+    });
+  }
+});
+
+// Actualizar horarios
 app.patch('/api/restaurants/my-restaurant/schedule', verificarToken, async (req, res) => {
   try {
     const { horarios } = req.body;
@@ -1396,9 +1647,8 @@ app.patch('/api/restaurants/my-restaurant/schedule', verificarToken, async (req,
     diasValidos.forEach(dia => {
       if (horarios[dia]) {
         horariosValidos[dia] = {
-          abierto: horarios[dia].abierto !== undefined ? horarios[dia].abierto : true,
-          apertura: horarios[dia].apertura || '09:00',
-          cierre: horarios[dia].cierre || '22:00'
+          apertura: horarios[dia].apertura || '',
+          cierre: horarios[dia].cierre || ''
         };
       }
     });
@@ -1421,6 +1671,11 @@ app.patch('/api/restaurants/my-restaurant/schedule', verificarToken, async (req,
     
     console.log('✅ Horarios actualizados:', restaurant.nombre);
     
+    // Notificar actualización via WebSocket si está disponible
+    if (global.wsServer) {
+      global.wsServer.notifyUpdatedRestaurant(restaurant, { tipo: 'horarios' });
+    }
+    
     res.json({
       success: true,
       message: 'Horarios actualizados exitosamente',
@@ -1437,7 +1692,7 @@ app.patch('/api/restaurants/my-restaurant/schedule', verificarToken, async (req,
   }
 });
 
-// PATCH /api/restaurants/my-restaurant/menu - Actualizar menú
+// Actualizar menú
 app.patch('/api/restaurants/my-restaurant/menu', verificarToken, async (req, res) => {
   try {
     const { menu } = req.body;
@@ -1486,6 +1741,11 @@ app.patch('/api/restaurants/my-restaurant/menu', verificarToken, async (req, res
     
     console.log('✅ Menú actualizado:', restaurant.nombre);
     
+    // Notificar actualización via WebSocket si está disponible
+    if (global.wsServer) {
+      global.wsServer.notifyUpdatedRestaurant(restaurant, { tipo: 'menú' });
+    }
+    
     res.json({
       success: true,
       message: 'Menú actualizado exitosamente',
@@ -1502,7 +1762,7 @@ app.patch('/api/restaurants/my-restaurant/menu', verificarToken, async (req, res
   }
 });
 
-// PATCH /api/restaurants/my-restaurant/social-media - Actualizar redes sociales
+// Actualizar redes sociales
 app.patch('/api/restaurants/my-restaurant/social-media', verificarToken, async (req, res) => {
   try {
     const { redes } = req.body;
@@ -1571,6 +1831,11 @@ app.patch('/api/restaurants/my-restaurant/social-media', verificarToken, async (
     
     console.log('✅ Redes sociales actualizadas:', restaurant.nombre);
     
+    // Notificar actualización via WebSocket si está disponible
+    if (global.wsServer) {
+      global.wsServer.notifyUpdatedRestaurant(restaurant, { tipo: 'redes sociales' });
+    }
+    
     res.json({
       success: true,
       message: 'Redes sociales actualizadas exitosamente',
@@ -1587,7 +1852,7 @@ app.patch('/api/restaurants/my-restaurant/social-media', verificarToken, async (
   }
 });
 
-// PATCH /api/restaurants/my-restaurant - Actualizar todo el restaurante
+// Actualizar todo el restaurante (opción completa)
 app.patch('/api/restaurants/my-restaurant', verificarToken, async (req, res) => {
   try {
     const updateData = req.body;
@@ -1623,6 +1888,11 @@ app.patch('/api/restaurants/my-restaurant', verificarToken, async (req, res) => 
     
     console.log('✅ Restaurante actualizado completamente:', restaurant.nombre);
     
+    // Notificar actualización via WebSocket si está disponible
+    if (global.wsServer) {
+      global.wsServer.notifyUpdatedRestaurant(restaurant, { tipo: 'actualización completa' });
+    }
+    
     res.json({
       success: true,
       message: 'Establecimiento actualizado exitosamente',
@@ -1648,64 +1918,48 @@ app.patch('/api/restaurants/my-restaurant', verificarToken, async (req, res) => 
   }
 });
 
-// ===== RUTAS DE PERFIL Y CAMBIO DE PASSWORD =====
-
-// PUT /api/auth/profile - Actualizar perfil
-app.put('/api/auth/profile', verificarToken, async (req, res) => {
+// ===== IMPORTANTE: RUTAS CON PARÁMETROS AL FINAL =====
+// GET /api/restaurants/:id - ESTA DEBE IR AL FINAL
+app.get('/api/restaurants/:id', async (req, res) => {
   try {
-    const { nombre, apellido, telefono, configuracion } = req.body;
+    const { id } = req.params;
 
-    // Validar campos requeridos
-    if (!nombre || !apellido || !telefono) {
+    // Validar que el ID sea un ObjectId válido
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
         success: false,
-        message: 'Nombre, apellido y teléfono son obligatorios'
+        message: 'ID de restaurante no válido'
       });
     }
 
-    const admin = await Admin.findByIdAndUpdate(
-      req.admin._id,
-      {
-        ...(nombre && { nombre }),
-        ...(apellido && { apellido }),
-        ...(telefono && { telefono }),
-        ...(configuracion && { configuracion })
-      },
-      { new: true, runValidators: true }
-    );
+    const restaurant = await Restaurant.findOne({ 
+      _id: id, 
+      activo: true 
+    }).populate('adminId', 'nombre apellido email telefono');
 
-    if (!admin) {
+    if (!restaurant) {
       return res.status(404).json({
         success: false,
-        message: 'Usuario no encontrado'
+        message: 'Restaurante no encontrado'
       });
     }
 
     res.json({
       success: true,
-      message: 'Perfil actualizado exitosamente',
-      data: {
-        admin: {
-          id: admin._id,
-          nombre: admin.nombre,
-          apellido: admin.apellido,
-          email: admin.email,
-          telefono: admin.telefono,
-          rol: admin.rol,
-          fechaCreacion: admin.fechaCreacion,
-          ultimoAcceso: admin.ultimoAcceso
-        }
-      }
+      message: 'Restaurante obtenido exitosamente',
+      data: { restaurant }
     });
 
   } catch (error) {
-    console.error('Error actualizando perfil:', error);
+    console.error('Error obteniendo restaurante:', error);
     res.status(500).json({
       success: false,
       message: 'Error interno del servidor'
     });
   }
 });
+
+console.log('✅ Rutas ordenadas correctamente - stats antes que :id');
 
 // PUT /api/auth/change-password - Cambiar contraseña
 app.put('/api/auth/change-password', verificarToken, async (req, res) => {
@@ -2871,6 +3125,52 @@ app.get('/admin', (req, res) => {
 console.log('✅ Rutas de Super Admin - Parte 2 (Completas) agregadas');
 // ========================================================= FIN DE APIS-RUTAS =============================================================
 console.log('✅ Rutas de setup, menú y horarios agregadas');
+
+
+// RUTA TEMPORAL PARA LIMPIAR IMÁGENES ROTAS
+app.get('/fix-images', async (req, res) => {
+  try {
+    console.log('🧹 Limpiando imágenes rotas...');
+    
+    const result = await Restaurant.updateMany(
+      {},
+      {
+        $pull: {
+          imagenes: {
+            url: { $regex: "/uploads/restaurants/" }
+          }
+        }
+      }
+    );
+    
+    console.log('✅ Limpieza completada:', result);
+    
+    res.send(`
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; border: 2px solid #10b981; border-radius: 10px; background: #f0fdf4;">
+        <h1 style="color: #10b981;">🧹 Limpieza completada</h1>
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <p><strong>Restaurantes procesados:</strong> ${result.modifiedCount}</p>
+          <p><strong>Total documentos encontrados:</strong> ${result.matchedCount}</p>
+          <p><strong>Estado:</strong> ${result.acknowledged ? 'Exitoso' : 'Fallido'}</p>
+        </div>
+        <p style="color: #059669; font-weight: bold;">✅ Todas las imágenes rotas han sido eliminadas</p>
+        <div style="margin-top: 20px;">
+          <a href="/admin.html" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">🎛️ Ir al Panel Admin</a>
+        </div>
+      </div>
+    `);
+    
+  } catch (error) {
+    console.error('❌ Error limpiando imágenes:', error);
+    res.status(500).send(`
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px;">
+        <h1 style="color: #ef4444;">❌ Error: ${error.message}</h1>
+        <a href="/test">Ver diagnóstico</a>
+      </div>
+    `);
+  }
+});
+
 // ===== MANEJO DE ERRORES =====
 app.use('*', (req, res) => {
   res.status(404).json({
