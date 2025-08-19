@@ -178,6 +178,7 @@ const generarToken = (id) => {
     expiresIn: '7d'
   });
 };
+
 const verificarToken = async (req, res, next) => {
   try {
     let token;
@@ -466,6 +467,422 @@ app.post('/api/restaurants/images/upload', verificarToken, upload.array('images'
     });
   }
 });
+
+// ===== AGREGAR ESTAS RUTAS DESPUÉS DE LAS RUTAS DE IMÁGENES =====
+// Pegar después de la última ruta de imágenes en tu server.js
+
+// ===== RUTAS DE GESTIÓN DE RESTAURANTES =====
+
+// GET /api/restaurants/my-restaurant - Obtener MI restaurante
+app.get('/api/restaurants/my-restaurant', verificarToken, async (req, res) => {
+  try {
+    console.log('🔍 Buscando restaurante para admin:', req.admin._id);
+    
+    const restaurant = await Restaurant.findOne({ 
+      adminId: req.admin._id, 
+      activo: true 
+    }).populate('adminId', 'nombre apellido email telefono');
+    
+    if (!restaurant) {
+      return res.status(404).json({
+        success: false,
+        message: 'No se encontró establecimiento asociado a este administrador'
+      });
+    }
+    
+    console.log('✅ Restaurante encontrado:', restaurant.nombre);
+    
+    res.json({
+      success: true,
+      data: restaurant
+    });
+    
+  } catch (error) {
+    console.error('❌ Error obteniendo restaurante:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error del servidor al obtener establecimiento',
+      error: error.message
+    });
+  }
+});
+
+// GET /api/admin/my-restaurant (ruta adicional)
+app.get('/api/admin/my-restaurant', verificarToken, async (req, res) => {
+  try {
+    console.log('🔍 Buscando restaurante para admin:', req.admin._id);
+    
+    const restaurant = await Restaurant.findOne({ 
+      adminId: req.admin._id,
+      activo: true 
+    }).populate('adminId', 'nombre apellido email telefono');
+    
+    if (!restaurant) {
+      return res.status(404).json({
+        success: false,
+        message: 'No se encontró restaurante asociado a este administrador'
+      });
+    }
+    
+    console.log('✅ Restaurante encontrado:', restaurant.nombre);
+    
+    res.json({
+      success: true,
+      message: 'Restaurante obtenido exitosamente',
+      data: restaurant
+    });
+    
+  } catch (error) {
+    console.error('❌ Error obteniendo mi restaurante:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error del servidor al obtener restaurante',
+      error: error.message
+    });
+  }
+});
+
+// PATCH /api/restaurants/my-restaurant/basic-info - Actualizar información básica
+app.patch('/api/restaurants/my-restaurant/basic-info', verificarToken, async (req, res) => {
+  try {
+    const { nombre, descripcion, telefono, email } = req.body;
+    
+    // Validar campos requeridos
+    if (!nombre || !descripcion || !telefono || !email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Todos los campos son requeridos'
+      });
+    }
+    
+    const restaurant = await Restaurant.findOneAndUpdate(
+      { adminId: req.admin._id, activo: true },
+      {
+        nombre: nombre.trim(),
+        descripcion: descripcion.trim(),
+        telefono: telefono.trim(),
+        email: email.toLowerCase().trim(),
+        fechaActualizacion: new Date()
+      },
+      { new: true, runValidators: true }
+    ).populate('adminId', 'nombre apellido email telefono');
+    
+    if (!restaurant) {
+      return res.status(404).json({
+        success: false,
+        message: 'Establecimiento no encontrado'
+      });
+    }
+    
+    console.log('✅ Información básica actualizada:', restaurant.nombre);
+    
+    res.json({
+      success: true,
+      message: 'Información básica actualizada exitosamente',
+      data: restaurant
+    });
+    
+  } catch (error) {
+    console.error('❌ Error actualizando información básica:', error);
+    
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Error de validación',
+        errors: Object.values(error.errors).map(err => err.message)
+      });
+    }
+    
+    res.status(500).json({
+      success: false,
+      message: 'Error del servidor',
+      error: error.message
+    });
+  }
+});
+
+// PATCH /api/restaurants/my-restaurant/address - Actualizar dirección
+app.patch('/api/restaurants/my-restaurant/address', verificarToken, async (req, res) => {
+  try {
+    const { direccion } = req.body;
+    
+    if (!direccion || !direccion.calle || !direccion.ciudad || !direccion.codigoPostal) {
+      return res.status(400).json({
+        success: false,
+        message: 'Todos los campos de dirección son requeridos'
+      });
+    }
+    
+    const restaurant = await Restaurant.findOneAndUpdate(
+      { adminId: req.admin._id, activo: true },
+      {
+        direccion: {
+          calle: direccion.calle.trim(),
+          ciudad: direccion.ciudad.trim(),
+          codigoPostal: direccion.codigoPostal.trim()
+        },
+        fechaActualizacion: new Date()
+      },
+      { new: true, runValidators: true }
+    ).populate('adminId', 'nombre apellido email telefono');
+    
+    if (!restaurant) {
+      return res.status(404).json({
+        success: false,
+        message: 'Establecimiento no encontrado'
+      });
+    }
+    
+    console.log('✅ Dirección actualizada:', restaurant.nombre);
+    
+    res.json({
+      success: true,
+      message: 'Dirección actualizada exitosamente',
+      data: restaurant
+    });
+    
+  } catch (error) {
+    console.error('❌ Error actualizando dirección:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error del servidor',
+      error: error.message
+    });
+  }
+});
+
+// GET /api/restaurants - Obtener todos los restaurantes (público)
+app.get('/api/restaurants', async (req, res) => {
+  try {
+    const { 
+      pagina = 1, 
+      limite = 12, 
+      tipo, 
+      ciudad, 
+      buscar,
+      ordenar = 'fechaCreacion',
+      direccion = 'desc'
+    } = req.query;
+
+    const filtros = { activo: true };
+    
+    if (tipo && ['restaurante', 'bar', 'cafeteria'].includes(tipo)) {
+      filtros.tipo = tipo;
+    }
+    
+    if (ciudad) {
+      filtros['direccion.ciudad'] = { $regex: ciudad, $options: 'i' };
+    }
+    
+    if (buscar) {
+      filtros.$or = [
+        { nombre: { $regex: buscar, $options: 'i' } },
+        { descripcion: { $regex: buscar, $options: 'i' } }
+      ];
+    }
+
+    const sortOptions = {};
+    sortOptions[ordenar] = direccion === 'desc' ? -1 : 1;
+
+    const skip = (parseInt(pagina) - 1) * parseInt(limite);
+
+    const [restaurantes, total] = await Promise.all([
+      Restaurant.find(filtros)
+        .populate('adminId', 'nombre apellido email telefono')
+        .sort(sortOptions)
+        .skip(skip)
+        .limit(parseInt(limite))
+        .lean(),
+      Restaurant.countDocuments(filtros)
+    ]);
+
+    const estadisticas = await Restaurant.aggregate([
+      { $match: { activo: true } },
+      { $group: { _id: '$tipo', count: { $sum: 1 } } }
+    ]);
+
+    const totalPaginas = Math.ceil(total / parseInt(limite));
+
+    // Procesar restaurantes con información adicional
+    const restaurantesConInfo = restaurantes.map(restaurant => ({
+      id: restaurant._id,
+      nombre: restaurant.nombre,
+      tipo: restaurant.tipo,
+      descripcion: restaurant.descripcion,
+      direccion: restaurant.direccion,
+      telefono: restaurant.telefono,
+      email: restaurant.email,
+      imagenes: restaurant.imagenes || [],
+      admin: restaurant.adminId,
+      fechaCreacion: restaurant.fechaCreacion,
+      fechaActualizacion: restaurant.fechaActualizacion
+    }));
+
+    res.json({
+      success: true,
+      message: 'Restaurantes obtenidos exitosamente',
+      data: {
+        restaurantes: restaurantesConInfo,
+        pagination: {
+          total,
+          pagina: parseInt(pagina),
+          limite: parseInt(limite),
+          totalPaginas,
+          hasNext: parseInt(pagina) < totalPaginas,
+          hasPrev: parseInt(pagina) > 1
+        },
+        filtros: { tipo, ciudad, buscar, ordenar, direccion },
+        estadisticas: estadisticas.reduce((acc, stat) => {
+          acc[stat._id] = stat.count;
+          return acc;
+        }, {})
+      }
+    });
+
+  } catch (error) {
+    console.error('Error obteniendo restaurantes:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+});
+
+// GET /api/restaurants/:id - Obtener restaurante específico (público)
+app.get('/api/restaurants/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const restaurant = await Restaurant.findOne({ 
+      _id: id, 
+      activo: true 
+    }).populate('adminId', 'nombre apellido email telefono');
+
+    if (!restaurant) {
+      return res.status(404).json({
+        success: false,
+        message: 'Restaurante no encontrado'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Restaurante obtenido exitosamente',
+      data: { restaurant }
+    });
+
+  } catch (error) {
+    console.error('Error obteniendo restaurante:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+});
+
+// GET /api/auth/profile - Perfil del admin
+app.get('/api/auth/profile', verificarToken, async (req, res) => {
+  try {
+    res.json({
+      success: true,
+      data: {
+        admin: req.admin
+      }
+    });
+  } catch (error) {
+    console.error('Error obteniendo perfil:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+});
+
+// GET /api/auth/verify-token - Verificar token
+app.get('/api/auth/verify-token', verificarToken, async (req, res) => {
+  try {
+    res.json({
+      success: true,
+      message: 'Token válido',
+      data: {
+        admin: {
+          id: req.admin._id,
+          nombre: req.admin.nombre,
+          apellido: req.admin.apellido,
+          email: req.admin.email,
+          telefono: req.admin.telefono,
+          rol: req.admin.rol
+        }
+      }
+    });
+  } catch (error) {
+    res.status(401).json({
+      success: false,
+      message: 'Token inválido'
+    });
+  }
+});
+
+// POST /api/auth/register - Registro de admins
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { nombre, apellido, email, password, telefono } = req.body;
+
+    // Verificar campos requeridos
+    if (!nombre || !apellido || !email || !password || !telefono) {
+      return res.status(400).json({
+        success: false,
+        message: 'Todos los campos son obligatorios'
+      });
+    }
+
+    // Verificar si el email ya existe
+    const adminExistente = await Admin.findOne({ email });
+    if (adminExistente) {
+      return res.status(400).json({
+        success: false,
+        message: 'Ya existe un administrador con este email'
+      });
+    }
+
+    // Crear nuevo admin
+    const admin = await Admin.create({
+      nombre,
+      apellido,
+      email,
+      password,
+      telefono
+    });
+
+    // Generar token
+    const token = generarToken(admin._id);
+
+    res.status(201).json({
+      success: true,
+      message: 'Administrador registrado exitosamente',
+      data: {
+        admin: {
+          id: admin._id,
+          nombre: admin.nombre,
+          apellido: admin.apellido,
+          email: admin.email,
+          telefono: admin.telefono,
+          rol: admin.rol
+        },
+        token
+      }
+    });
+
+  } catch (error) {
+    console.error('Error en registro:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+});
+
+console.log('✅ Rutas de restaurantes agregadas');
 
 // ===== MANEJO DE ERRORES =====
 app.use('*', (req, res) => {
