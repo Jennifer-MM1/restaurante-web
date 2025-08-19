@@ -1,4 +1,43 @@
+// ===== RESTAURANT SCHEMA ACTUALIZADO PARA CLOUDINARY =====
+
 const mongoose = require('mongoose');
+
+// Schema para imágenes CON CLOUDINARY
+const imagenSchema = new mongoose.Schema({
+  filename: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  originalName: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  url: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  cloudinaryId: { // NUEVO: ID para poder eliminar de Cloudinary
+    type: String,
+    required: true,
+    trim: true
+  },
+  size: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  esPrincipal: {
+    type: Boolean,
+    default: false
+  },
+  fechaSubida: {
+    type: Date,
+    default: Date.now
+  }
+}, { _id: true });
 
 // Schema para elementos del menú
 const menuItemSchema = new mongoose.Schema({
@@ -118,34 +157,7 @@ const redesSchema = new mongoose.Schema({
   }
 }, { _id: false });
 
-// Schema para imágenes - NUEVO
-const imagenSchema = new mongoose.Schema({
-  filename: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  url: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  size: {
-    type: Number,
-    required: true,
-    min: 0
-  },
-  uploadDate: {
-    type: Date,
-    default: Date.now
-  },
-  path: {
-    type: String,
-    required: true
-  }
-}, { _id: true });
-
-// Schema principal del restaurante
+// Schema principal del restaurante ACTUALIZADO
 const restaurantSchema = new mongoose.Schema({
   nombre: {
     type: String,
@@ -196,36 +208,27 @@ const restaurantSchema = new mongoose.Schema({
   },
   horarios: {
     type: horariosSchema,
-    default: () => ({})
+    default: {}
   },
-  menu: {
-    type: [menuCategorySchema],
-    default: []
-  },
-  imagenes: {
-    type: [imagenSchema],
-    default: [],
-    validate: {
-      validator: function(v) {
-        return v.length <= 20; // Máximo 20 imágenes
-      },
-      message: 'No se pueden tener más de 20 imágenes'
-    }
-  },
+  menu: [menuCategorySchema],
+  // IMPORTANTE: Schema de imágenes ACTUALIZADO para Cloudinary
+  imagenes: [imagenSchema],
   redes: {
     type: redesSchema,
-    default: () => ({})
+    default: {}
   },
   adminId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Admin',
-    required: [true, 'El administrador es obligatorio'],
-    index: true
+    required: [true, 'El administrador es obligatorio']
   },
   activo: {
     type: Boolean,
-    default: true,
-    index: true
+    default: true
+  },
+  verificado: {
+    type: Boolean,
+    default: false
   },
   fechaCreacion: {
     type: Date,
@@ -235,28 +238,9 @@ const restaurantSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   }
-}, {
-  timestamps: true,
-  toJSON: { virtuals: true },
-  toObject: { virtuals: true }
 });
 
-// Indices para optimizar consultas
-restaurantSchema.index({ adminId: 1, activo: 1 });
-restaurantSchema.index({ tipo: 1, activo: 1 });
-restaurantSchema.index({ 'direccion.ciudad': 1, activo: 1 });
-
-// Virtual para obtener la imagen principal
-restaurantSchema.virtual('imagenPrincipal').get(function() {
-  return this.imagenes && this.imagenes.length > 0 ? this.imagenes[0] : null;
-});
-
-// Virtual para contar total de imágenes
-restaurantSchema.virtual('totalImagenes').get(function() {
-  return this.imagenes ? this.imagenes.length : 0;
-});
-
-// Middleware pre-save para actualizar fechaActualizacion
+// ===== MIDDLEWARE PARA ACTUALIZAR fechaActualizacion =====
 restaurantSchema.pre('save', function(next) {
   if (this.isModified() && !this.isNew) {
     this.fechaActualizacion = new Date();
@@ -264,58 +248,81 @@ restaurantSchema.pre('save', function(next) {
   next();
 });
 
-// Método para agregar imagen
-restaurantSchema.methods.agregarImagen = function(imagenData) {
-  if (!this.imagenes) {
-    this.imagenes = [];
+// ===== MÉTODOS VIRTUALES =====
+restaurantSchema.virtual('totalImagenes').get(function() {
+  return this.imagenes ? this.imagenes.length : 0;
+});
+
+restaurantSchema.virtual('imagenPrincipal').get(function() {
+  if (!this.imagenes || this.imagenes.length === 0) return null;
+  
+  const principal = this.imagenes.find(img => img.esPrincipal);
+  return principal || this.imagenes[0];
+});
+
+// ===== MÉTODOS DE INSTANCIA =====
+
+// Método para establecer imagen principal
+restaurantSchema.methods.setImagenPrincipal = function(imageId) {
+  if (!this.imagenes || this.imagenes.length === 0) {
+    throw new Error('No hay imágenes disponibles');
   }
-  this.imagenes.push(imagenData);
+
+  // Quitar principal de todas
+  this.imagenes.forEach(img => {
+    img.esPrincipal = false;
+  });
+
+  // Buscar y establecer nueva principal
+  const imagen = this.imagenes.id(imageId);
+  if (!imagen) {
+    throw new Error('Imagen no encontrada');
+  }
+
+  imagen.esPrincipal = true;
   return this.save();
 };
 
 // Método para eliminar imagen
 restaurantSchema.methods.eliminarImagen = function(imageId) {
-  if (!this.imagenes) return this.save();
-  
-  this.imagenes = this.imagenes.filter(img => img._id.toString() !== imageId);
+  if (!this.imagenes || this.imagenes.length === 0) {
+    throw new Error('No hay imágenes para eliminar');
+  }
+
+  const imagen = this.imagenes.id(imageId);
+  if (!imagen) {
+    throw new Error('Imagen no encontrada');
+  }
+
+  // Si es la principal y hay más imágenes, hacer principal la primera
+  if (imagen.esPrincipal && this.imagenes.length > 1) {
+    this.imagenes.forEach((img, index) => {
+      if (img._id.toString() !== imageId && index === 0) {
+        img.esPrincipal = true;
+      }
+    });
+  }
+
+  imagen.remove();
   return this.save();
 };
 
-// Método para establecer imagen principal
-restaurantSchema.methods.establecerImagenPrincipal = function(imageId) {
-  if (!this.imagenes || this.imagenes.length === 0) return this.save();
-  
-  const imageIndex = this.imagenes.findIndex(img => img._id.toString() === imageId);
-  if (imageIndex === -1 || imageIndex === 0) return this.save();
-  
-  const [selectedImage] = this.imagenes.splice(imageIndex, 1);
-  this.imagenes.unshift(selectedImage);
-  
-  return this.save();
-};
+// ===== ÍNDICES =====
+restaurantSchema.index({ adminId: 1 });
+restaurantSchema.index({ activo: 1 });
+restaurantSchema.index({ tipo: 1 });
+restaurantSchema.index({ 'direccion.ciudad': 1 });
+restaurantSchema.index({ fechaCreacion: -1 });
 
-// Método para obtener horario del día actual
-restaurantSchema.methods.getHorarioHoy = function() {
-  const dias = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
-  const hoy = dias[new Date().getDay()];
-  return this.horarios[hoy] || { abierto: false };
-};
-
-// Método para verificar si está abierto ahora
-restaurantSchema.methods.estaAbiertoAhora = function() {
-  const horarioHoy = this.getHorarioHoy();
-  if (!horarioHoy.abierto) return false;
-  
-  const ahora = new Date();
-  const horaActual = ahora.getHours() * 60 + ahora.getMinutes();
-  
-  const [aperturaHora, aperturaMin] = horarioHoy.apertura.split(':').map(Number);
-  const [cierreHora, cierreMin] = horarioHoy.cierre.split(':').map(Number);
-  
-  const apertura = aperturaHora * 60 + aperturaMin;
-  const cierre = cierreHora * 60 + cierreMin;
-  
-  return horaActual >= apertura && horaActual <= cierre;
-};
+// ===== CONFIGURACIÓN DE TRANSFORMACIÓN JSON =====
+restaurantSchema.set('toJSON', { 
+  virtuals: true,
+  transform: function(doc, ret) {
+    // Incluir información útil sobre imágenes
+    ret.totalImagenes = ret.imagenes ? ret.imagenes.length : 0;
+    ret.imagenPrincipalUrl = ret.imagenPrincipal ? ret.imagenPrincipal.url : null;
+    return ret;
+  }
+});
 
 module.exports = mongoose.model('Restaurant', restaurantSchema);

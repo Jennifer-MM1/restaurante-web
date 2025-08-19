@@ -1049,43 +1049,439 @@ app.patch('/api/restaurants/my-restaurant', verificarToken, async (req, res) => 
 
 
 // ===== CONFIGURACIÓN DE MULTER PARA IMÁGENES =====
-const multer = require('multer');
-const fs = require('fs');
+// ===== CONFIGURACIÓN DE CLOUDINARY =====
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const mongoose = require('mongoose');
 
-// Crear directorio si no existe
-const uploadsDir = path.join(__dirname, 'public', 'uploads', 'restaurants');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-// Configuración de almacenamiento
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadsDir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const ext = path.extname(file.originalname);
-    const name = file.originalname.replace(ext, '').replace(/[^a-zA-Z0-9]/g, '_');
-    cb(null, `${uniqueSuffix}-${name}${ext}`);
-  }
+// Configurar Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// Configuración de multer
-const upload = multer({
-  storage: storage,
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Solo se permiten archivos de imagen'), false);
+console.log('🌩️ Cloudinary configurado:', {
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY ? 'Configurado' : 'NO CONFIGURADO',
+  api_secret: process.env.CLOUDINARY_API_SECRET ? 'Configurado' : 'NO CONFIGURADO'
+});
+
+// ===== SCHEMA PARA IMÁGENES CON CLOUDINARY =====
+const imagenSchema = new mongoose.Schema({
+  filename: {
+    type: String,
+    required: true
+  },
+  originalName: {
+    type: String,
+    required: true
+  },
+  url: {
+    type: String,
+    required: true
+  },
+  cloudinaryId: {
+    type: String,
+    required: true
+  },
+  size: {
+    type: Number,
+    required: true
+  },
+  esPrincipal: {
+    type: Boolean,
+    default: false
+  },
+  fechaSubida: {
+    type: Date,
+    default: Date.now
+  }
+}, { _id: true });
+
+// ===== SCHEMA PARA DIRECCIÓN =====
+const direccionSchema = new mongoose.Schema({
+  calle: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  ciudad: {
+    type: String,
+    required: true,
+    trim: true,
+    default: 'Jalpan de Serra'
+  },
+  estado: {
+    type: String,
+    required: true,
+    trim: true,
+    default: 'Querétaro'
+  },
+  codigoPostal: {
+    type: String,
+    required: true,
+    trim: true,
+    default: '76345'
+  },
+  coordenadas: {
+    lat: { type: Number },
+    lng: { type: Number }
+  }
+}, { _id: false });
+
+// ===== SCHEMA PARA AMENIDADES =====
+const amenidadesSchema = new mongoose.Schema({
+  // Amenidades básicas
+  wifi: { type: Boolean, default: false },
+  estacionamiento: { type: Boolean, default: false },
+  aireAcondicionado: { type: Boolean, default: false },
+  calefaccion: { type: Boolean, default: false },
+  televisor: { type: Boolean, default: false },
+  
+  // Cocina
+  cocina: { type: Boolean, default: false },
+  refrigerador: { type: Boolean, default: false },
+  microondas: { type: Boolean, default: false },
+  cafetera: { type: Boolean, default: false },
+  
+  // Baño
+  toallas: { type: Boolean, default: false },
+  secadorCabello: { type: Boolean, default: false },
+  articulosAseo: { type: Boolean, default: false },
+  
+  // Entretenimiento
+  piscina: { type: Boolean, default: false },
+  jacuzzi: { type: Boolean, default: false },
+  bbq: { type: Boolean, default: false },
+  jardin: { type: Boolean, default: false },
+  terraza: { type: Boolean, default: false },
+  
+  // Servicios
+  servicioCuartos: { type: Boolean, default: false },
+  lavanderia: { type: Boolean, default: false },
+  desayuno: { type: Boolean, default: false },
+  recepcion24h: { type: Boolean, default: false },
+  
+  // Específicas para turismo
+  vistaMontana: { type: Boolean, default: false },
+  cercaRio: { type: Boolean, default: false },
+  senderos: { type: Boolean, default: false },
+  fogata: { type: Boolean, default: false }
+}, { _id: false });
+
+// ===== SCHEMA PARA PRECIOS =====
+const preciosSchema = new mongoose.Schema({
+  temporadaBaja: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  temporadaAlta: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  temporadaEspecial: {
+    type: Number,
+    min: 0
+  },
+  moneda: {
+    type: String,
+    default: 'MXN',
+    enum: ['MXN', 'USD']
+  },
+  porPersona: {
+    type: Boolean,
+    default: false
+  }
+}, { _id: false });
+
+// ===== SCHEMA BASE PARA ALOJAMIENTOS =====
+const alojamientoBaseSchema = {
+  nombre: {
+    type: String,
+    required: [true, 'El nombre es obligatorio'],
+    trim: true,
+    maxlength: [100, 'El nombre no puede exceder 100 caracteres']
+  },
+  descripcion: {
+    type: String,
+    required: [true, 'La descripción es obligatoria'],
+    trim: true,
+    maxlength: [1000, 'La descripción no puede exceder 1000 caracteres']
+  },
+  direccion: {
+    type: direccionSchema,
+    required: [true, 'La dirección es obligatoria']
+  },
+  telefono: {
+    type: String,
+    required: [true, 'El teléfono es obligatorio'],
+    trim: true
+  },
+  email: {
+    type: String,
+    required: [true, 'El email es obligatorio'],
+    trim: true,
+    lowercase: true
+  },
+  capacidad: {
+    huespedes: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 50
+    },
+    habitaciones: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 20
+    },
+    camas: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 30
+    },
+    banos: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 10
     }
   },
-  limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB
-    files: 10
+  precios: {
+    type: preciosSchema,
+    required: true
+  },
+  amenidades: {
+    type: amenidadesSchema,
+    default: {}
+  },
+  imagenes: [imagenSchema],
+  redes: {
+    facebook: { type: String, trim: true },
+    instagram: { type: String, trim: true },
+    website: { type: String, trim: true },
+    whatsapp: { type: String, trim: true }
+  },
+  adminId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Admin',
+    required: true
+  },
+  activo: {
+    type: Boolean,
+    default: true
+  },
+  verificado: {
+    type: Boolean,
+    default: false
+  },
+  rating: {
+    promedio: { type: Number, default: 0, min: 0, max: 5 },
+    totalReviews: { type: Number, default: 0 }
+  },
+  fechaCreacion: {
+    type: Date,
+    default: Date.now
+  },
+  fechaActualizacion: {
+    type: Date,
+    default: Date.now
+  }
+};
+
+// ===== SCHEMA ESPECÍFICO PARA HOTELES =====
+const hotelSchema = new mongoose.Schema({
+  ...alojamientoBaseSchema,
+  tipo: {
+    type: String,
+    default: 'hotel',
+    immutable: true
+  },
+  categoria: {
+    type: String,
+    enum: ['economico', 'standard', 'superior', 'lujo'],
+    default: 'standard'
+  },
+  servicios: {
+    restaurante: { type: Boolean, default: false },
+    bar: { type: Boolean, default: false },
+    spa: { type: Boolean, default: false },
+    gimnasio: { type: Boolean, default: false },
+    salonEventos: { type: Boolean, default: false },
+    transporteAeropuerto: { type: Boolean, default: false }
+  },
+  politicas: {
+    checkIn: { type: String, default: '15:00' },
+    checkOut: { type: String, default: '12:00' },
+    cancelacion: { type: String, default: '24 horas' },
+    mascotas: { type: Boolean, default: false },
+    fumadores: { type: Boolean, default: false }
   }
 });
+
+// ===== SCHEMA ESPECÍFICO PARA CABAÑAS =====
+const cabanaSchema = new mongoose.Schema({
+  ...alojamientoBaseSchema,
+  tipo: {
+    type: String,
+    default: 'cabana',
+    immutable: true
+  },
+  tipoCabana: {
+    type: String,
+    enum: ['rustica', 'moderna', 'ecologica', 'premium'],
+    default: 'rustica'
+  },
+  ubicacion: {
+    tipo: {
+      type: String,
+      enum: ['montana', 'bosque', 'rio', 'valle'],
+      default: 'montana'
+    },
+    altitud: { type: Number },
+    distanciaCentro: { type: Number } // en km
+  },
+  caracteristicas: {
+    chimenea: { type: Boolean, default: false },
+    asador: { type: Boolean, default: false },
+    hamacas: { type: Boolean, default: false },
+    mirador: { type: Boolean, default: false },
+    senderoPrivado: { type: Boolean, default: false }
+  }
+});
+
+// ===== SCHEMA ESPECÍFICO PARA AIRBNB =====
+const airbnbSchema = new mongoose.Schema({
+  ...alojamientoBaseSchema,
+  tipo: {
+    type: String,
+    default: 'airbnb',
+    immutable: true
+  },
+  tipoPropiedad: {
+    type: String,
+    enum: ['casa-completa', 'apartamento', 'habitacion-privada', 'habitacion-compartida'],
+    required: true
+  },
+  airbnbId: {
+    type: String,
+    trim: true,
+    unique: true,
+    sparse: true
+  },
+  disponibilidad: {
+    minimaNoches: { type: Number, default: 1, min: 1 },
+    maximaNoches: { type: Number, default: 30, min: 1 }
+  },
+  reglasCasa: {
+    horaLlegada: { type: String, default: 'Flexible' },
+    horaSalida: { type: String, default: '11:00' },
+    fiestas: { type: Boolean, default: false },
+    fumar: { type: Boolean, default: false },
+    mascotas: { type: Boolean, default: false },
+    ninos: { type: Boolean, default: true }
+  }
+});
+
+// ===== CREAR MODELOS =====
+const Hotel = mongoose.model('Hotel', hotelSchema);
+const Cabana = mongoose.model('Cabana', cabanaSchema);
+const AirbnbProperty = mongoose.model('AirbnbProperty', airbnbSchema);
+
+// ===== CONFIGURACIONES DE STORAGE PARA CLOUDINARY =====
+const hotelStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'turismo-jalpan/hoteles',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+    transformation: [
+      { width: 1200, height: 800, crop: 'limit' },
+      { quality: 'auto:good' }
+    ],
+    public_id: (req, file) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      const name = file.originalname.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9]/g, '_');
+      return `hotel-${uniqueSuffix}-${name}`;
+    }
+  }
+});
+
+const cabanaStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'turismo-jalpan/cabanas',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+    transformation: [
+      { width: 1200, height: 800, crop: 'limit' },
+      { quality: 'auto:good' }
+    ],
+    public_id: (req, file) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      const name = file.originalname.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9]/g, '_');
+      return `cabana-${uniqueSuffix}-${name}`;
+    }
+  }
+});
+
+const airbnbStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'turismo-jalpan/airbnb',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+    transformation: [
+      { width: 1200, height: 800, crop: 'limit' },
+      { quality: 'auto:good' }
+    ],
+    public_id: (req, file) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      const name = file.originalname.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9]/g, '_');
+      return `airbnb-${uniqueSuffix}-${name}`;
+    }
+  }
+});
+
+// ===== MIDDLEWARE PARA ACTUALIZAR fechaActualizacion =====
+hotelSchema.pre('save', function(next) {
+  if (this.isModified() && !this.isNew) {
+    this.fechaActualizacion = new Date();
+  }
+  next();
+});
+
+cabanaSchema.pre('save', function(next) {
+  if (this.isModified() && !this.isNew) {
+    this.fechaActualizacion = new Date();
+  }
+  next();
+});
+
+airbnbSchema.pre('save', function(next) {
+  if (this.isModified() && !this.isNew) {
+    this.fechaActualizacion = new Date();
+  }
+  next();
+});
+
+// ===== EXPORTAR TODO =====
+module.exports = {
+  cloudinary,
+  hotelStorage,
+  cabanaStorage,
+  airbnbStorage,
+  Hotel,
+  Cabana,
+  AirbnbProperty,
+  // Schemas para uso en otros archivos
+  imagenSchema,
+  direccionSchema,
+  amenidadesSchema,
+  preciosSchema
+};
 
 // ===== RUTAS DE GESTIÓN DE IMÁGENES =====
 
