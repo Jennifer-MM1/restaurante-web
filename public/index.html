@@ -91,75 +91,7 @@
             background-color: var(--white);
         }
 
-        /* ===== RELOJ Y CLIMA EN HERO ===== */
-        .hero-clock-weather {
-            margin-top: var(--spacing-2xl);
-            text-align: center;
-        }
-
-        .clock-weather-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: var(--spacing-2xl);
-            max-width: 600px;
-            margin: 0 auto var(--spacing-xl);
-            background: rgba(255, 255, 255, 0.95);
-            padding: var(--spacing-xl);
-            border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-lg);
-            backdrop-filter: blur(10px);
-        }
-
-        .clock-section, .weather-section {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-lg);
-        }
-
-        .clock-icon, .weather-icon {
-            font-size: 2.5rem;
-            color: var(--primary);
-            flex-shrink: 0;
-        }
-
-        .clock-content, .weather-content {
-            text-align: left;
-        }
-
-        .current-time {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--gray-900);
-            font-family: 'Courier New', monospace;
-        }
-
-        .current-date {
-            font-size: 0.9rem;
-            color: var(--gray-600);
-            margin-top: var(--spacing-xs);
-        }
-
-        .current-temperature {
-            font-size: 1.4rem;
-            font-weight: 600;
-            color: var(--gray-900);
-        }
-
-        .weather-location {
-            font-size: 0.85rem;
-            color: var(--gray-600);
-            margin-top: var(--spacing-xs);
-        }
-
-        .weather-loading {
-            color: var(--gray-500);
-            font-style: italic;
-        }
-
-        .weather-error {
-            color: var(--error);
-            font-size: 0.9rem;
-        }
+        
 
         /* Estadísticas compactas */
         .compact-stats {
@@ -1383,7 +1315,7 @@ html, body {
                 <h1 class="logo">
                     <!-- IMAGEN AGREGADA AQUÍ -->
                     <img src="\images\PueblosMágicos.svg.png" alt="Logo Turismo" class="logo-image">
-                    <i class="fas fa-utensils"></i>
+                  
                     Dirección de Turismo
                 </h1>
             </div>
@@ -1883,45 +1815,341 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </div>
                     <!-- Reloj y Clima Widget -->
-                    <div class="hero-clock-weather">
-                        <div class="clock-weather-container">
-                            <div class="clock-section">
-                                <div class="clock-icon">
-                                    <i class="fas fa-clock"></i>
-                                </div>
-                                <div class="clock-content">
-                                    <div class="current-time" id="current-time">--:--:--</div>
-                                    <div class="current-date" id="current-date">Cargando fecha...</div>
-                                </div>
-                            </div>
-                            
-                            <div class="weather-section">
-                                <div class="weather-icon" id="weather-icon">
-                                    <i class="fas fa-thermometer-half"></i>
-                                </div>
-                                <div class="weather-content">
-                                    <div class="current-temperature" id="current-temperature">Cargando...</div>
-                                    <div class="weather-location">Jalpan de Serra, Qro.</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Estadísticas compactas debajo 
-                        <div class="compact-stats">
-                            <div class="compact-stat">
-                                <span id="total-count">0</span> Establecimientos
-                            </div>
-                            <div class="compact-stat">
-                                <span id="restaurant-count">0</span> Restaurantes
-                            </div>
-                            <div class="compact-stat">
-                                <span id="bar-count">0</span> Bares
-                            </div>
-                            <div class="compact-stat">
-                                <span id="cafe-count">0</span> Cafeterías
-                            </div>
-                        </div>-->
-                    </div>
+                    <!-- ===== REEMPLAZAR ESTA SECCIÓN EN TU index.html ===== -->
+
+<!-- Busca esta sección en tu HTML y reemplázala: -->
+<!-- ANTES: <div class="hero-clock-weather"> -->
+
+<!-- NUEVO HTML MINIMALISTA -->
+<div class="hero-clock-weather">
+    <div class="minimalist-clock-container">
+        <div class="clock-display">
+            <div class="time-display" id="current-time">--:--</div>
+            <div class="date-display" id="current-date">Cargando...</div>
+        </div>
+        <div class="temperature-display">
+            <div class="temp-value" id="current-temperature">--°</div>
+            <div class="temp-location">Jalpan</div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== NUEVO CSS MINIMALISTA (AGREGAR AL <style>) ===== -->
+<style>
+/* ===== RELOJ Y CLIMA MINIMALISTA ===== */
+.hero-clock-weather {
+    margin-top: var(--spacing-xl);
+}
+
+.minimalist-clock-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 400px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.9);
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.clock-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.time-display {
+    font-family: 'SF Mono', Monaco, 'Inconsolata', 'Roboto Mono', Consolas, monospace;
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: var(--gray-900);
+    letter-spacing: -1px;
+    line-height: 1;
+    transition: var(--transition);
+}
+
+.date-display {
+    font-size: 0.9rem;
+    color: var(--gray-600);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.temperature-display {
+    margin-left: var(--spacing-lg);
+    padding-left: var(--spacing-lg);
+    border-left: 1px solid rgba(107, 114, 128, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.temp-value {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--gray-800);
+    line-height: 1;
+}
+
+.temp-location {
+    font-size: 0.75rem;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.weather-loading {
+    color: var(--gray-500);
+    font-style: italic;
+    font-size: 0.8rem;
+}
+
+.weather-error {
+    color: #ef4444;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+/* Colores de temperatura */
+.temp-hot { color: #dc2626; }      /* >30°C */
+.temp-warm { color: #ea580c; }     /* 25-30°C */
+.temp-mild { color: #ca8a04; }     /* 20-25°C */
+.temp-cool { color: #059669; }     /* 15-20°C */
+.temp-cold { color: #2563eb; }     /* 10-15°C */
+.temp-freezing { color: #7c3aed; } /* <10°C */
+
+/* Animación sutil */
+.time-display.updating {
+    transform: scale(1.02);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .minimalist-clock-container {
+        max-width: 320px;
+        padding: var(--spacing-md) var(--spacing-lg);
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+
+    .temperature-display {
+        margin-left: 0;
+        padding-left: 0;
+        border-left: none;
+        border-top: 1px solid rgba(107, 114, 128, 0.2);
+        padding-top: var(--spacing-sm);
+    }
+
+    .time-display {
+        font-size: 2rem;
+    }
+
+    .temp-value {
+        font-size: 1.4rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .minimalist-clock-container {
+        max-width: 280px;
+        padding: var(--spacing-md);
+    }
+
+    .time-display {
+        font-size: 1.8rem;
+    }
+
+    .temp-value {
+        font-size: 1.2rem;
+    }
+
+    .date-display {
+        font-size: 0.8rem;
+    }
+
+    .temp-location {
+        font-size: 0.7rem;
+    }
+}
+</style>
+
+<!-- ===== JAVASCRIPT MINIMALISTA (REEMPLAZAR EN EL SCRIPT) ===== -->
+<script>
+// ===== CLASE MINIMALISTA PARA RELOJ Y CLIMA =====
+class MinimalistClockWidget {
+    constructor() {
+        // Tu API key del clima (igual que antes)
+        this.API_KEY = 'e451d502b62544789d1193141250608';
+        
+        this.CACHE_TIME = 10 * 60 * 1000; // 10 minutos
+        this.weatherCache = null;
+        this.lastFetch = null;
+        
+        this.init();
+        this.startClock();
+        this.loadWeather();
+        
+        // Actualizar clima cada 10 minutos
+        setInterval(() => this.loadWeather(), 10 * 60 * 1000);
+    }
+
+    init() {
+        this.updateDateTime();
+    }
+
+    startClock() {
+        this.updateClock();
+        // ✅ CAMBIO: Actualizar cada minuto en lugar de cada segundo
+        setInterval(() => this.updateClock(), 60000);
+        setInterval(() => this.updateDateTime(), 60000);
+    }
+
+    updateClock() {
+        const now = new Date();
+        // ✅ CAMBIO: Solo mostrar horas y minutos (sin segundos)
+        const time = now.toLocaleTimeString('es-MX', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+        
+        const timeElement = document.getElementById('current-time');
+        if (timeElement) {
+            // Animación sutil al cambiar
+            timeElement.classList.add('updating');
+            setTimeout(() => {
+                timeElement.textContent = time;
+                timeElement.classList.remove('updating');
+            }, 100);
+        }
+    }
+
+    updateDateTime() {
+        const now = new Date();
+        // ✅ CAMBIO: Formato minimalista - Solo día y mes
+        const shortDate = now.toLocaleDateString('es-MX', {
+            day: '2-digit',
+            month: 'short'
+        }).toUpperCase().replace('.', '');
+        
+        const dateElement = document.getElementById('current-date');
+        if (dateElement) {
+            dateElement.textContent = shortDate;
+        }
+    }
+
+    async loadWeather() {
+        // Verificar cache
+        const now = Date.now();
+        if (this.weatherCache && this.lastFetch && (now - this.lastFetch) < this.CACHE_TIME) {
+            return;
+        }
+
+        try {
+            this.showWeatherLoading();
+            const weather = await this.getRealWeather();
+            this.displayMinimalistWeather(weather);
+            
+            this.weatherCache = weather;
+            this.lastFetch = now;
+            
+        } catch (error) {
+            console.error('❌ Error cargando clima:', error);
+            await this.fallbackToSimulation();
+        }
+    }
+
+    async getRealWeather() {
+        if (!this.API_KEY || this.API_KEY === 'PONER_TU_API_KEY_AQUI') {
+            throw new Error('API key no configurada');
+        }
+
+        const lat = 21.2165;
+        const lon = -99.4729;
+        const url = `https://api.weatherapi.com/v1/current.json?key=${this.API_KEY}&q=${lat},${lon}&lang=es&aqi=yes`;
+        
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+        
+        const data = await response.json();
+        return {
+            temp: Math.round(data.current.temp_c),
+            description: data.current.condition.text,
+            humidity: data.current.humidity,
+            windSpeed: Math.round(data.current.wind_kph),
+            feelsLike: Math.round(data.current.feelslike_c)
+        };
+    }
+
+    // ✅ NUEVO: Mostrar clima de forma minimalista
+    displayMinimalistWeather(weather) {
+        const tempElement = document.getElementById('current-temperature');
+        if (!tempElement) return;
+
+        // Solo mostrar temperatura con símbolo de grado
+        tempElement.textContent = `${weather.temp}°`;
+        
+        // Aplicar color según temperatura
+        tempElement.className = 'temp-value';
+        if (weather.temp > 30) tempElement.classList.add('temp-hot');
+        else if (weather.temp > 25) tempElement.classList.add('temp-warm');
+        else if (weather.temp > 20) tempElement.classList.add('temp-mild');
+        else if (weather.temp > 15) tempElement.classList.add('temp-cool');
+        else if (weather.temp > 10) tempElement.classList.add('temp-cold');
+        else tempElement.classList.add('temp-freezing');
+
+        // Tooltip minimalista con información completa
+        const tooltipInfo = [
+            `🌡️ ${weather.temp}°C (sensación: ${weather.feelsLike}°C)`,
+            `💧 Humedad: ${weather.humidity}%`,
+            `💨 Viento: ${weather.windSpeed} km/h`,
+            `📍 Jalpan de Serra, Qro.`
+        ].join('\n');
+        
+        tempElement.title = tooltipInfo;
+    }
+
+    showWeatherLoading() {
+        const tempElement = document.getElementById('current-temperature');
+        if (tempElement) {
+            tempElement.textContent = '--°';
+            tempElement.className = 'temp-value weather-loading';
+        }
+    }
+
+    async fallbackToSimulation() {
+        const temps = [18, 20, 22, 24, 26];
+        const temp = temps[Math.floor(Math.random() * temps.length)];
+        
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        this.displayMinimalistWeather({ 
+            temp: temp,
+            description: 'Simulado',
+            humidity: 65,
+            windSpeed: 10,
+            feelsLike: temp + 2
+        });
+    }
+}
+
+// ✅ CAMBIO: Reemplazar la clase anterior con esta
+// Busca en tu código donde se inicializa el reloj y reemplaza con:
+let minimalistClock;
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Inicializar reloj minimalista
+    minimalistClock = new MinimalistClockWidget();
+    
+    console.log('🕐 Reloj minimalista iniciado');
+});
+</script>
                 </div>
             </div>
         </section>
@@ -2128,15 +2356,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         restaurantes, bares y cafeterías de Jalpan de Serra.
                     </p>
                     <div class="footer-social">
-                        <a href="#" class="social-link" aria-label="Facebook">
+                        <a href="https://www.facebook.com/profile.php?id=61573849871475&locale=es_LA" class="social-link" aria-label="Facebook">
                             <i class="fab fa-facebook"></i>
                         </a>
-                        <a href="#" class="social-link" aria-label="Instagram">
+                        <a href="https://www.instagram.com/jalpan_pueblomagico?igsh=MWpmdDVnMndpbnB1dQ==" class="social-link" aria-label="Instagram">
                             <i class="fab fa-instagram"></i>
                         </a>
-                        <a href="#" class="social-link" aria-label="Twitter">
-                            <i class="fab fa-twitter"></i>
-                        </a>
+                        
                     </div>
                 </div>
                 
@@ -2145,6 +2371,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <ul class="footer-links">
                         <li><a href="#inicio">Inicio</a></li>
                         <li><a href="#restaurantes">Establecimientos</a></li>
+                        <li><a href="https://turismo-app-production-cebd.up.railway.app/index.html">Hospedajes</a></li>
                         <li><a href="jalpan-de-serra.html">Sobre Jalpan</a></li>
                         <li><a href="admin.html">Panel Admin</a></li>
                     </ul>
@@ -2157,34 +2384,40 @@ document.addEventListener('DOMContentLoaded', function() {
                         <li><a href="jalpan-de-serra.html#ingredientes">Ingredientes Locales</a></li>
                         <li><a href="jalpan-de-serra.html#historia">Historia Culinaria</a></li>
                         <li><a href="jalpan-de-serra.html#tradiciones">Tradiciones</a></li>
+                        
                     </ul>
                 </div>
                 
+                <!-- Contacto -->
                 <div class="footer-section">
-                    <h4 class="footer-subtitle">Contacto</h4>
+                    <h3>Contacto</h3>
                     <div class="footer-contact">
-                        <p>
+                        <div class="contact-item">
                             <i class="fas fa-envelope"></i>
-                            info@restauranteweb.com
-                        </p>
-                        <p>
+                            <span>direcciondeturismojalpan@gmail.com</span>
+                        </div>
+                        <div class="contact-item">
                             <i class="fas fa-phone"></i>
-                            +52 (444) 123-4567
-                        </p>
-                        <p>
+                            <span>+52 441-296-0285</span>
+                        </div>
+                        <div class="contact-item">
                             <i class="fas fa-map-marker-alt"></i>
-                            Jalpan de Serra, Querétaro
-                        </p>
+                            <span>Plaza Principal, Jalpan de Serra, Querétaro</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-clock"></i>
+                            <span>Lun - Vie: 8:00 AM - 3:30 PM</span>
+                        </div>
                     </div>
                 </div>
+            </div>
             </div>
             
             <div class="footer-bottom">
                 <p>&copy; 2025 RestauranteWeb - Jalpan de Serra. Todos los derechos reservados.</p>
                 <div class="footer-bottom-links">
-                    <a href="#">Términos de Servicio</a>
-                    <a href="#">Política de Privacidad</a>
-                    <a href="#">Ayuda</a>
+                    <a href="https://www.instagram.com/isaacl_.gsoria/">Desarrollado por</a>
+                    
                 </div>
             </div>
         </div>
