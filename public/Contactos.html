@@ -817,39 +817,385 @@
                 gap: var(--spacing-lg);
             }
         }
+
+        /* ===== CSS COMPLETO PARA HEADER IGUAL A INDEX.HTML ===== */
+/* AGREGAR AL FINAL DEL <style> EN CONTACTOS.HTML */
+
+/* ===== ESTILOS PARA EL LOGO CON IMAGEN ===== */
+.logo-image {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+    margin-right: var(--spacing-xs);
+    transition: var(--transition);
+    flex-shrink: 0;
+    background: var(--white);
+    padding: 2px;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Hover effect sutil */
+.nav-brand:hover .logo-image {
+    transform: scale(1.05);
+}
+
+/* ===== ACTUALIZAR ESTILOS DEL HEADER ===== */
+.header {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--gray-200);
+    z-index: 1001 !important;
+    height: 70px;
+}
+
+.nav {
+    width: 100%;
+    height: 100%;
+    padding: 0; /* Remover padding */
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg);
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+}
+
+/* ===== ACTUALIZAR LOGO ===== */
+.nav-brand {
+    text-decoration: none;
+}
+
+.nav-brand .logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    margin: 0;
+    text-decoration: none;
+}
+
+/* ===== MENÚ DESKTOP ===== */
+.nav-menu {
+    display: flex;
+    gap: var(--spacing-xl);
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: var(--gray-700);
+    font-weight: 500;
+    transition: var(--transition);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: var(--primary);
+    background: rgba(37, 99, 235, 0.1);
+}
+
+/* ===== ACCIONES DEL NAV ===== */
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.btn-admin {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.btn-admin:hover {
+    background: var(--primary-dark);
+}
+
+/* ===== BOTÓN HAMBURGUESA ===== */
+.nav-toggle {
+    display: none !important;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--gray-700);
+    cursor: pointer;
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-md);
+    transition: var(--transition);
+    z-index: 1002;
+    min-width: 44px;
+    min-height: 44px;
+    position: relative;
+    user-select: none;
+}
+
+.nav-toggle:hover {
+    background-color: var(--gray-100);
+    color: var(--primary);
+}
+
+/* ===== OVERLAY PARA MENÚ MÓVIL ===== */
+.nav-overlay {
+    position: fixed !important;
+    top: 70px !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: rgba(0, 0, 0, 0.3) !important;
+    z-index: 999 !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transition: all 0.3s ease !important;
+}
+
+.nav-overlay.active {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+}
+
+/* ===== RESPONSIVE PARA MÓVIL ===== */
+@media (max-width: 768px) {
+    /* MOSTRAR BOTÓN HAMBURGUESA */
+    .nav-toggle {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* MENÚ MÓVIL */
+    .nav-menu {
+        position: fixed !important;
+        top: 70px !important;
+        left: 0 !important;
+        right: 0 !important;
+        background-color: var(--white) !important;
+        border-top: 1px solid var(--gray-200);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        flex-direction: column !important;
+        padding: var(--spacing-lg) !important;
+        gap: var(--spacing-lg) !important;
+        
+        /* Estado oculto */
+        transform: translateY(-100%) !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+        
+        /* Transición suave */
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        z-index: 1000 !important;
+        max-height: calc(100vh - 70px) !important;
+        overflow-y: auto !important;
+    }
+    
+    /* MENÚ ACTIVO */
+    .nav-menu.active {
+        transform: translateY(0) !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+    }
+    
+    /* ENLACES EN MÓVIL */
+    .nav-link {
+        width: 100% !important;
+        text-align: center !important;
+        padding: var(--spacing-md) !important;
+        border: 1px solid var(--gray-200) !important;
+        border-radius: var(--radius-md) !important;
+        background: var(--gray-50) !important;
+        font-weight: 500 !important;
+        transition: all 0.2s ease !important;
+        display: block !important;
+        margin: 0 !important;
+    }
+    
+    .nav-link:hover,
+    .nav-link.active {
+        background: var(--primary) !important;
+        color: var(--white) !important;
+        border-color: var(--primary) !important;
+        transform: translateY(-1px) !important;
+    }
+    
+    /* BOTÓN ADMIN EN MÓVIL */
+    .btn-admin {
+        padding: var(--spacing-sm) var(--spacing-md) !important;
+        font-size: 0.8rem !important;
+    }
+    
+    .btn-admin span {
+        display: none !important;
+    }
+    
+    /* Asegurar que el contenido no quede tapado */
+    .main {
+        padding-top: 70px;
+    }
+}
+
+/* ===== RESPONSIVE PARA MÓVIL PEQUEÑO ===== */
+@media (max-width: 480px) {
+    .nav-container {
+        padding: 0 var(--spacing-sm) !important;
+    }
+    
+    .logo-image {
+        width: 30px;
+        height: 30px;
+        margin-right: 4px;
+    }
+    
+    .nav-brand .logo {
+        font-size: 1.1rem !important;
+    }
+    
+    .nav-menu {
+        padding: var(--spacing-md) !important;
+        gap: var(--spacing-md) !important;
+    }
+    
+    .nav-link {
+        padding: var(--spacing-sm) !important;
+        font-size: 0.9rem !important;
+    }
+}
+
+@media (max-width: 360px) {
+    .logo-image {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .nav-brand .logo {
+        font-size: 1rem !important;
+    }
+}
+
+/* ===== DESKTOP - ASEGURAR FUNCIONAMIENTO NORMAL ===== */
+@media (min-width: 769px) {
+    .nav-overlay {
+        display: none !important;
+    }
+    
+    .nav-toggle {
+        display: none !important;
+    }
+    
+    .nav-menu {
+        position: static !important;
+        transform: none !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+        background: none !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        flex-direction: row !important;
+        gap: var(--spacing-xl) !important;
+        max-height: none !important;
+    }
+    
+    .nav-link {
+        width: auto !important;
+        text-align: left !important;
+        border: none !important;
+        background: none !important;
+        display: inline-block !important;
+        padding: var(--spacing-sm) var(--spacing-md) !important;
+    }
+    
+    .btn-admin span {
+        display: inline !important;
+    }
+}
+
+/* ===== FALLBACK PARA IMAGEN DEL LOGO ===== */
+.logo-image::after {
+    content: "🏛️";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+    display: none;
+}
+
+.logo-image[src=""],
+.logo-image:not([src]) {
+    background: var(--primary);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-image[src=""]::after,
+.logo-image:not([src])::after {
+    display: block;
+    position: static;
+    transform: none;
+}
+
+
+
     </style>
 </head>
 <body>
     <!-- Header -->
-    <header class="header">
-        <nav class="nav">
-            <div class="nav-container">
-                <a href="index.html" class="logo">
-                    <i class="fas fa-utensils"></i>
-                    RestauranteWeb
-                </a>
-                
-                <div class="nav-menu" id="nav-menu">
-                    <a href="index.html" class="nav-link">Inicio</a>
-                    <a href="index.html#sobre-jalpan" class="nav-link">Jalpan de Serra</a>
-                    <a href="index.html#restaurantes" class="nav-link">Restaurantes</a>
-                    <a href="index.html#restaurantes" class="nav-link">Bares</a>
-                    <a href="index.html#restaurantes" class="nav-link">Cafeterías</a>
-                    <a href="contacto.html" class="nav-link active">Contacto</a>
-                </div>
-                
-                <div class="nav-actions">
-                    <a href="admin.html" class="btn btn-admin">
-                        <i class="fas fa-user-shield"></i>
-                        Panel Admin
-                    </a>
-                    <button class="nav-toggle" id="nav-toggle">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                </div>
+    <!-- Header actualizado para Contactos.html -->
+<!-- Header EXACTAMENTE IGUAL a index.html -->
+<header class="header">
+    <nav class="nav">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h1 class="logo">
+                    <!-- IMAGEN EXACTAMENTE IGUAL -->
+                    <img src="\images\PueblosMágicos.svg.png" alt="Logo Turismo" class="logo-image">
+                    Dirección de Turismo
+                </h1>
             </div>
-        </nav>
-    </header>
+                         
+            <!-- MENÚ DESKTOP EXACTAMENTE IGUAL -->
+            <div class="nav-menu" id="nav-menu">
+                <a href="index.html#inicio" class="nav-link">Inicio</a>
+                <a href="index.html#restaurantes" class="nav-link">Restaurantes</a>
+                <a href="https://turismo-app-production-cebd.up.railway.app/index.html" class="nav-link">Hospedaje</a>
+                <a href="Contactos.html" class="nav-link active">Contacto</a>
+            </div>
+                         
+            <div class="nav-actions">
+                <a href="admin.html" class="btn btn-admin">
+                    <i class="fas fa-user-shield"></i>
+                    <span>Panel Admin</span>
+                </a>
+                                 
+                <!-- BOTÓN HAMBURGUESA EXACTAMENTE IGUAL -->
+                <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+</header>
 
     <!-- Main Content -->
     <main class="main">
@@ -1284,24 +1630,141 @@
         Sin EmailJS configurado, el formulario usará mailto como fallback.
         */
         
-        // ===== NAVEGACIÓN MÓVIL =====
-        document.addEventListener('DOMContentLoaded', () => {
-            const navToggle = document.getElementById('nav-toggle');
-            const navMenu = document.getElementById('nav-menu');
-            
-            if (navToggle && navMenu) {
-                navToggle.addEventListener('click', () => {
-                    navMenu.classList.toggle('active');
-                });
-                
-                // Cerrar menú al hacer click en un enlace
-                navMenu.querySelectorAll('.nav-link').forEach(link => {
-                    link.addEventListener('click', () => {
-                        navMenu.classList.remove('active');
-                    });
-                });
+        // ===== NAVEGACIÓN MÓVIL COMPLETA (IGUAL A INDEX.HTML) =====
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Inicializando menú móvil en Contactos...');
+    
+    const navToggle = document.getElementById('nav-toggle');
+    const navMenu = document.getElementById('nav-menu');
+    
+    // Verificar elementos
+    if (!navToggle) {
+        console.error('❌ No se encontró #nav-toggle');
+        return;
+    }
+    
+    if (!navMenu) {
+        console.error('❌ No se encontró #nav-menu');
+        return;
+    }
+    
+    console.log('✅ Elementos encontrados:', { navToggle, navMenu });
+    
+    // Crear overlay si no existe
+    let overlay = document.querySelector('.nav-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'nav-overlay';
+        overlay.id = 'nav-overlay';
+        document.body.appendChild(overlay);
+        console.log('✅ Overlay creado');
+    }
+    
+    // Estado del menú
+    let isMenuOpen = false;
+    
+    // Función para abrir menú
+    function openMenu() {
+        console.log('🔓 Abriendo menú...');
+        isMenuOpen = true;
+        navMenu.classList.add('active');
+        overlay.classList.add('active');
+        updateIcon();
+        document.body.style.overflow = 'hidden';
+    }
+    
+    // Función para cerrar menú
+    function closeMenu() {
+        console.log('🔒 Cerrando menú...');
+        isMenuOpen = false;
+        navMenu.classList.remove('active');
+        overlay.classList.remove('active');
+        updateIcon();
+        document.body.style.overflow = '';
+    }
+    
+    // Actualizar icono
+    function updateIcon() {
+        const icon = navToggle.querySelector('i');
+        if (icon) {
+            if (isMenuOpen) {
+                icon.className = 'fas fa-times';
+                navToggle.setAttribute('aria-label', 'Cerrar menú');
+                navToggle.setAttribute('aria-expanded', 'true');
+            } else {
+                icon.className = 'fas fa-bars';
+                navToggle.setAttribute('aria-label', 'Abrir menú');
+                navToggle.setAttribute('aria-expanded', 'false');
             }
-        });
+        }
+    }
+    
+    // Inicializar estado
+    updateIcon();
+    
+    // Click en botón hamburguesa
+    navToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        console.log('🍔 Toggle clicked, menu open:', isMenuOpen);
+        
+        if (isMenuOpen) {
+            closeMenu();
+        } else {
+            openMenu();
+        }
+    });
+    
+    // Click en enlaces del menú
+    navMenu.addEventListener('click', function(e) {
+        if (e.target.classList.contains('nav-link')) {
+            console.log('🔗 Nav link clicked');
+            setTimeout(closeMenu, 100);
+        }
+    });
+    
+    // Click en overlay
+    overlay.addEventListener('click', function() {
+        console.log('👆 Overlay clicked');
+        closeMenu();
+    });
+    
+    // Tecla Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && isMenuOpen) {
+            console.log('⌨️ Escape pressed');
+            closeMenu();
+        }
+    });
+    
+    // Redimensionar ventana
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768 && isMenuOpen) {
+            console.log('📱 Window resized, closing menu');
+            closeMenu();
+        }
+    });
+    
+    // Prevenir propagación de clicks dentro del menú
+    navMenu.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+    
+    console.log('✅ Menú móvil inicializado correctamente en Contactos');
+    
+    // Función de debug
+    window.debugMenuContactos = function() {
+        console.log('🔍 DEBUG MENÚ CONTACTOS:');
+        console.log('Toggle button:', navToggle);
+        console.log('Menu:', navMenu);
+        console.log('Overlay:', overlay);
+        console.log('Is open:', isMenuOpen);
+        console.log('Screen width:', window.innerWidth);
+        console.log('Toggle display:', getComputedStyle(navToggle).display);
+        console.log('Menu classes:', navMenu.className);
+    };
+});
 
         // ===== FAQ ACCORDION =====
         document.querySelectorAll('.faq-question').forEach(question => {
