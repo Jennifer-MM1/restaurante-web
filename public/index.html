@@ -1432,6 +1432,7 @@ html, body {
 </style>
 
 <!-- ===== 2. CSS COMPLETO PARA EL MENÚ ===== -->
+<!-- ===== CSS CORREGIDO PARA MENÚ MÓVIL ===== -->
 <style>
 /* RESETEAR ESTILOS DEL HEADER */
 .header {
@@ -1477,6 +1478,9 @@ html, body {
     display: flex;
     gap: var(--spacing-xl);
     align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
 }
 
 .nav-link {
@@ -1538,6 +1542,7 @@ html, body {
     z-index: 1002;
     min-width: 44px;
     min-height: 44px;
+    position: relative;
 }
 
 .nav-toggle:hover {
@@ -1554,116 +1559,240 @@ html, body {
         justify-content: center;
     }
     
-    /* OCULTAR MENÚ DESKTOP */
+    /* MENÚ MÓVIL - POSICIONAMIENTO CORREGIDO */
     .nav-menu {
-        position: fixed;
-        top: 70px;
-        left: 0;
-        right: 0;
-        background-color: var(--white);
+        position: fixed !important;
+        top: 70px !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: auto !important;
+        width: 100% !important;
+        background-color: var(--white) !important;
         border-top: 1px solid var(--gray-200);
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-        flex-direction: column;
-        padding: var(--spacing-lg);
-        gap: var(--spacing-lg);
-        transform: translateY(-100%);
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 1000;
-        max-height: calc(100vh - 70px);
-        overflow-y: auto;
+        flex-direction: column !important;
+        padding: var(--spacing-lg) !important;
+        gap: var(--spacing-lg) !important;
+        
+        /* ESTADO OCULTO */
+        transform: translateY(-100%) !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+        
+        /* TRANSICIÓN SUAVE */
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        z-index: 1000 !important;
+        max-height: calc(100vh - 70px) !important;
+        overflow-y: auto !important;
     }
     
-    /* MENÚ ACTIVO */
+    /* MENÚ ACTIVO - ESTADO VISIBLE */
     .nav-menu.active {
         transform: translateY(0) !important;
         opacity: 1 !important;
         visibility: visible !important;
+        pointer-events: auto !important;
     }
     
     /* ENLACES EN MÓVIL */
     .nav-link {
-        width: 100%;
-        text-align: center;
-        padding: var(--spacing-md);
-        border: 1px solid var(--gray-200);
-        border-radius: var(--radius-md);
-        background: var(--gray-50);
-        font-weight: 500;
-        transition: all 0.2s ease;
+        width: 100% !important;
+        text-align: center !important;
+        padding: var(--spacing-md) !important;
+        border: 1px solid var(--gray-200) !important;
+        border-radius: var(--radius-md) !important;
+        background: var(--gray-50) !important;
+        font-weight: 500 !important;
+        transition: all 0.2s ease !important;
+        display: block !important;
+        margin: 0 !important;
     }
     
     .nav-link:hover,
     .nav-link.active {
         background: var(--primary) !important;
         color: var(--white) !important;
-        border-color: var(--primary);
-        transform: translateY(-1px);
+        border-color: var(--primary) !important;
+        transform: translateY(-1px) !important;
     }
     
     /* BOTÓN ADMIN EN MÓVIL */
     .btn-admin {
-        padding: var(--spacing-sm) var(--spacing-md);
-        font-size: 0.8rem;
+        padding: var(--spacing-sm) var(--spacing-md) !important;
+        font-size: 0.8rem !important;
     }
     
     .btn-admin span {
-        display: none;
+        display: none !important;
     }
 }
 
 /* MÓVIL PEQUEÑO */
 @media (max-width: 480px) {
     .nav-container {
-        padding: 0 var(--spacing-sm);
+        padding: 0 var(--spacing-sm) !important;
     }
     
-    .logo {
-        font-size: 1.25rem;
+    .nav-brand .logo {
+        font-size: 1.25rem !important;
     }
     
     .nav-menu {
-        padding: var(--spacing-md);
-        gap: var(--spacing-md);
+        padding: var(--spacing-md) !important;
+        gap: var(--spacing-md) !important;
     }
     
     .nav-link {
-        padding: var(--spacing-sm);
-        font-size: 0.9rem;
+        padding: var(--spacing-sm) !important;
+        font-size: 0.9rem !important;
     }
 }
 
 /* OVERLAY PARA CERRAR MENÚ */
 .nav-overlay {
-    position: fixed;
-    top: 70px;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.3);
-    z-index: 999;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
+    position: fixed !important;
+    top: 70px !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: rgba(0, 0, 0, 0.3) !important;
+    z-index: 999 !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transition: all 0.3s ease !important;
 }
 
 .nav-overlay.active {
-    opacity: 1;
-    visibility: visible;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
 }
 
+/* ASEGURAR QUE EN DESKTOP NO HAYA OVERLAY */
 @media (min-width: 769px) {
     .nav-overlay {
         display: none !important;
+    }
+    
+    .nav-toggle {
+        display: none !important;
+    }
+    
+    .nav-menu {
+        position: static !important;
+        transform: none !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+        background: none !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        flex-direction: row !important;
+        max-height: none !important;
+    }
+    
+    .nav-link {
+        width: auto !important;
+        text-align: left !important;
+        border: none !important;
+        background: none !important;
+        display: inline-block !important;
+    }
+}
+
+/* ===== OVERRIDE CRÍTICO PARA ARREGLAR MENÚ MÓVIL ===== */
+/* AGREGAR AL FINAL DEL <style> EN index.html */
+
+/* Sobrescribir el display: none que está causando el problema */
+@media (max-width: 768px) {
+    .nav-menu {
+        display: flex !important; /* Forzar que siempre se pueda mostrar */
+        position: fixed !important;
+        top: 70px !important;
+        left: 0 !important;
+        right: 0 !important;
+        background-color: var(--white) !important;
+        border-top: 1px solid var(--gray-200);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        flex-direction: column !important;
+        padding: var(--spacing-lg) !important;
+        gap: var(--spacing-lg) !important;
+        z-index: 1000 !important;
+        
+        /* Estado por defecto: oculto */
+        transform: translateY(-100%) !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+        
+        /* Transición suave */
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    
+    /* Estado activo: visible */
+    .nav-menu.active {
+        transform: translateY(0) !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+    }
+    
+    /* Enlaces del menú móvil */
+    .nav-menu .nav-link {
+        width: 100% !important;
+        text-align: center !important;
+        padding: var(--spacing-md) !important;
+        border: 1px solid var(--gray-200) !important;
+        border-radius: var(--radius-md) !important;
+        background: var(--gray-50) !important;
+        display: block !important;
+        margin: 0 !important;
+    }
+    
+    .nav-menu .nav-link:hover,
+    .nav-menu .nav-link.active {
+        background: var(--primary) !important;
+        color: var(--white) !important;
+        border-color: var(--primary) !important;
+    }
+}
+
+/* Asegurar que en desktop funcione normal */
+@media (min-width: 769px) {
+    .nav-menu {
+        display: flex !important;
+        position: static !important;
+        transform: none !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+        background: none !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        flex-direction: row !important;
+        gap: var(--spacing-xl) !important;
+    }
+    
+    .nav-menu .nav-link {
+        width: auto !important;
+        text-align: left !important;
+        border: none !important;
+        background: none !important;
+        display: inline-block !important;
+        padding: var(--spacing-sm) var(--spacing-md) !important;
     }
 }
 </style>
 
 <!-- ===== 3. JAVASCRIPT MEJORADO ===== -->
 <script>
+// ===== JAVASCRIPT CORREGIDO PARA MENÚ MÓVIL =====
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Inicializando menú móvil...');
+    console.log('🚀 Inicializando menú móvil corregido...');
     
     const navToggle = document.getElementById('nav-toggle');
     const navMenu = document.getElementById('nav-menu');
@@ -1688,6 +1817,7 @@ document.addEventListener('DOMContentLoaded', function() {
         overlay.className = 'nav-overlay';
         overlay.id = 'nav-overlay';
         document.body.appendChild(overlay);
+        console.log('✅ Overlay creado');
     }
     
     // Estado del menú
@@ -1697,42 +1827,63 @@ document.addEventListener('DOMContentLoaded', function() {
     function openMenu() {
         console.log('🔓 Abriendo menú...');
         isMenuOpen = true;
+        
+        // Agregar clases active
         navMenu.classList.add('active');
         overlay.classList.add('active');
+        
+        // Actualizar icono
         updateIcon();
-        document.body.style.overflow = 'hidden'; // Evitar scroll
+        
+        // Prevenir scroll del body
+        document.body.style.overflow = 'hidden';
+        
+        console.log('✅ Menú abierto - clases agregadas');
     }
     
     // Función para cerrar menú
     function closeMenu() {
         console.log('🔒 Cerrando menú...');
         isMenuOpen = false;
+        
+        // Remover clases active
         navMenu.classList.remove('active');
         overlay.classList.remove('active');
+        
+        // Actualizar icono
         updateIcon();
-        document.body.style.overflow = ''; // Restaurar scroll
+        
+        // Restaurar scroll del body
+        document.body.style.overflow = '';
+        
+        console.log('✅ Menú cerrado - clases removidas');
     }
     
-    // Actualizar icono
+    // Actualizar icono del botón
     function updateIcon() {
         const icon = navToggle.querySelector('i');
         if (icon) {
             if (isMenuOpen) {
                 icon.className = 'fas fa-times';
                 navToggle.setAttribute('aria-label', 'Cerrar menú');
+                navToggle.setAttribute('aria-expanded', 'true');
             } else {
                 icon.className = 'fas fa-bars';
                 navToggle.setAttribute('aria-label', 'Abrir menú');
+                navToggle.setAttribute('aria-expanded', 'false');
             }
         }
     }
+    
+    // Inicializar estado
+    updateIcon();
     
     // Click en botón hamburguesa
     navToggle.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
         
-        console.log('🍔 Toggle clicked, menu open:', isMenuOpen);
+        console.log('🍔 Toggle clicked, estado actual:', isMenuOpen);
         
         if (isMenuOpen) {
             closeMenu();
@@ -1741,21 +1892,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Click en enlaces del menú
-    navMenu.addEventListener('click', function(e) {
-        if (e.target.classList.contains('nav-link')) {
-            console.log('🔗 Nav link clicked');
+    // Click en enlaces del menú (cerrar menú)
+    const navLinks = navMenu.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            console.log('🔗 Nav link clicked:', this.textContent);
+            // Pequeño delay para permitir navegación
             setTimeout(closeMenu, 100);
-        }
+        });
     });
     
-    // Click en overlay
+    // Click en overlay (cerrar menú)
     overlay.addEventListener('click', function() {
         console.log('👆 Overlay clicked');
         closeMenu();
     });
     
-    // Tecla Escape
+    // Tecla Escape para cerrar
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && isMenuOpen) {
             console.log('⌨️ Escape pressed');
@@ -1763,25 +1916,33 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Redimensionar ventana
+    // Cerrar menú si la ventana se redimensiona a desktop
     window.addEventListener('resize', function() {
         if (window.innerWidth > 768 && isMenuOpen) {
-            console.log('📱 Window resized, closing menu');
+            console.log('📱 Window resized to desktop, closing menu');
             closeMenu();
         }
     });
     
+    // Prevenir propagación de clicks dentro del menú
+    navMenu.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+    
     console.log('✅ Menú móvil inicializado correctamente');
     
-    // Función de debug
+    // Función de debug (opcional)
     window.debugMenu = function() {
         console.log('🔍 DEBUG MENÚ:');
-        console.log('Toggle button:', navToggle);
-        console.log('Menu:', navMenu);
-        console.log('Is open:', isMenuOpen);
-        console.log('Screen width:', window.innerWidth);
-        console.log('Toggle display:', getComputedStyle(navToggle).display);
-        console.log('Menu classes:', navMenu.className);
+        console.log('- Toggle button:', navToggle);
+        console.log('- Menu:', navMenu);
+        console.log('- Overlay:', overlay);
+        console.log('- Is open:', isMenuOpen);
+        console.log('- Screen width:', window.innerWidth);
+        console.log('- Toggle display:', getComputedStyle(navToggle).display);
+        console.log('- Menu classes:', navMenu.className);
+        console.log('- Menu computed transform:', getComputedStyle(navMenu).transform);
+        console.log('- Menu computed opacity:', getComputedStyle(navMenu).opacity);
     };
 });
 </script>
@@ -2388,29 +2549,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </ul>
                 </div>
                 
-                <!-- Contacto -->
-                <div class="footer-section">
-                    <h3>Contacto</h3>
-                    <div class="footer-contact">
-                        <div class="contact-item">
-                            <i class="fas fa-envelope"></i>
-                            <span>direcciondeturismojalpan@gmail.com</span>
-                        </div>
-                        <div class="contact-item">
-                            <i class="fas fa-phone"></i>
-                            <span>+52 441-296-0285</span>
-                        </div>
-                        <div class="contact-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>Plaza Principal, Jalpan de Serra, Querétaro</span>
-                        </div>
-                        <div class="contact-item">
-                            <i class="fas fa-clock"></i>
-                            <span>Lun - Vie: 8:00 AM - 3:30 PM</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                
             </div>
             
             <div class="footer-bottom">
@@ -3684,23 +3823,94 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // ===== NAVEGACIÓN MÓVIL =====
-        document.addEventListener('DOMContentLoaded', () => {
-            const navToggle = document.getElementById('nav-toggle');
-            const navMenu = document.getElementById('nav-menu');
+        // ===== NAVEGACIÓN MÓVIL SIMPLIFICADA =====
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('🚀 Iniciando menú móvil simplificado...');
+    
+    const navToggle = document.getElementById('nav-toggle');
+    const navMenu = document.getElementById('nav-menu');
+    
+    if (!navToggle || !navMenu) {
+        console.error('❌ Elementos del menú no encontrados');
+        return;
+    }
+    
+    // Crear overlay si no existe
+    let overlay = document.querySelector('.nav-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'nav-overlay';
+        document.body.appendChild(overlay);
+    }
+    
+    // Variable de estado
+    let menuOpen = false;
+    
+    // Función para toggle del menú
+    function toggleMenu() {
+        menuOpen = !menuOpen;
+        
+        console.log('🍔 Toggle menú:', menuOpen ? 'ABRIENDO' : 'CERRANDO');
+        
+        if (menuOpen) {
+            // Abrir menú
+            navMenu.classList.add('active');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
             
-            if (navToggle && navMenu) {
-                navToggle.addEventListener('click', () => {
-                    navMenu.classList.toggle('active');
-                });
-                
-                // Cerrar menú al hacer click en un enlace
-                navMenu.querySelectorAll('.nav-link').forEach(link => {
-                    link.addEventListener('click', () => {
-                        navMenu.classList.remove('active');
-                    });
-                });
+            // Cambiar icono
+            const icon = navToggle.querySelector('i');
+            if (icon) icon.className = 'fas fa-times';
+            
+        } else {
+            // Cerrar menú
+            navMenu.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+            
+            // Restaurar icono
+            const icon = navToggle.querySelector('i');
+            if (icon) icon.className = 'fas fa-bars';
+        }
+    }
+    
+    // Event listeners
+    navToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleMenu();
+    });
+    
+    // Cerrar menú al hacer clic en overlay
+    overlay.addEventListener('click', () => {
+        if (menuOpen) toggleMenu();
+    });
+    
+    // Cerrar menú al hacer clic en enlace
+    navMenu.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+            if (menuOpen) {
+                setTimeout(() => toggleMenu(), 100);
             }
         });
+    });
+    
+    // Cerrar con Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && menuOpen) {
+            toggleMenu();
+        }
+    });
+    
+    // Cerrar si se redimensiona a desktop
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768 && menuOpen) {
+            toggleMenu();
+        }
+    });
+    
+    console.log('✅ Menú móvil simplificado inicializado');
+});
 
         // ===== NAVEGACIÓN SUAVE =====
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
